@@ -1,0 +1,417 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>Object-orientation and inheritance in JavaScript: a comprehensive explanation »  The Log Book of Manuel Kiessling</title>
+
+<meta name="description" content="" />
+
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,800' rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="../../../../wp-content/themes/wu-wei/style.css" type="text/css" />
+<link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling RSS Feed" href="../../../../feed/" />
+<link rel="alternate" type="application/atom+xml" title="The Log Book of Manuel Kiessling Atom Feed" href="../../../../feed/atom/" />
+<link rel="pingback" href="/xmlrpc.php" />
+
+
+<link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling &raquo; Object-orientation and inheritance in JavaScript: a comprehensive explanation Comments Feed" href="feed/" />
+<script type='text/javascript' src='../../../../wp-includes/js/comment-reply.js%3Fver=20090102'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="../../../../wp-includes/wlwmanifest.xml" /> 
+<link rel='index' title='The Log Book of Manuel Kiessling' href='/' />
+<link rel='start' title='siqqel: SQL-Abfragen direkt aus HTML heraus ausführen und darstellen' href='../../../../2010/04/08/siqqel-ein-sehr-nutzliches-tool-fur-entwickler-business-analysten-produktmanager-und-qaler/index.html' />
+<link rel='prev' title='Project: projectile, an HTML5 canvas game' href='../../19/project-projectile-an-html5-canvas-game/index.html' />
+<meta name="generator" content="WordPress 2.9.2" />
+<link rel='canonical' href='index.html' />
+</head>
+
+<body id="top" class="">
+
+	<div class="full-column">
+
+		<div class="center-column">
+
+			<ul id="menu">
+        <li><a href="../../../../" ><span></span><br />HOME</a></li>
+        <li><a href="../../../../projects/"><span></span><br />PROJECTS</a></li>
+				<li><a href="../../../../contact/"><span></span><br />CONTACT</a></li>
+				<li><a href="http://photographs.manuel.kiessling.net/"><span></span><br />PHOTOGRAPHS</a></li>
+				<li><a href="../../../../feed/"><span></span><br />RSS</a></li>
+				<li class="last"><a href="index.html#sidebar"><span></span><br />ABOUT</a></li>
+			</ul>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	</div>
+
+<div class="center-column">
+
+	<div id="header">
+
+		<div class="blog-name"><a href="../../../../">The Log Book of Manuel Kiessling</a></div>
+
+	</div>
+
+	
+		<div class="post-568 post hentry category-sonstiges" id="post-568">
+
+			<div class="post-info single">
+
+				<h1><a href="." rel="bookmark" title="Permanent Link to Object-orientation and inheritance in JavaScript: a comprehensive explanation">Object-orientation and inheritance in JavaScript: a comprehensive explanation</a></h1>
+
+        <div class="timestamp">March 23, 2012</div>
+
+        <div class="clearboth"><!-- --></div>
+
+        <div id="sharing">
+                  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://manuel.kiessling.net/2012/03/23/object-orientation-and-inheritance-in-javascript-a-comprehensive-explanation/" data-text="Object-orientation and inheritance in JavaScript: a comprehensive explanation" data-via="manuelkiessling">Tweet</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+          <br />
+
+          <g:plusone size="medium" annotation="inline" width="300"></g:plusone>
+          <script type="text/javascript">
+            (function() {
+              var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+              po.src = 'https://apis.google.com/js/plusone.js';
+             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+            })();
+          </script>
+       </div>
+
+        <div class="clearboth"><!-- --></div>
+
+			</div>
+
+
+			<div class="post-content single">
+				<p>Let&#8217;s talk about object-orientation and inheritance in JavaScript.</p>
+<p>The good news is that it&#8217;s actually quite simple, but the bad news is that it works completely different than object-orientation in languages like C++, Java, Ruby, Python or PHP, making it not-quite-so simple to understand.</p>
+<p>But fear not, we are going to take it step by step.</p>
+<h2 id="blueprints-versus-finger-pointing">Blueprints versus finger-pointing</h2>
+<p>Let&#8217;s start by looking at how &quot;typical&quot; object-oriented languages actually create objects.</p>
+<p>We are going to talk about an object called <em>myCar</em>. myCar is our bits-and-bytes representation of an incredibly simplified real world car. It could have attributes like <em>color</em> and <em>weight</em>, and methods like <em>drive</em> and <em>honk</em>.</p>
+<p>In a &quot;real&quot; application, <em>myCar</em> could be used to represent the car in a game which is driven by the player of that game &#8211; but we are going to completely ignore the context of this object, because we are going to talk about the nature and usage of this object in a more abstract way.</p>
+<p>If you would want to use this <em>myCar</em> object in, say, Java, you need to define the blueprint of this specific object first &#8211; this is what Java and most other object-oriented languages call a <em>class</em>.</p>
+<p>If you want to create the object <em>myCar</em>, you tell Java to &quot;build a new object after the specification that is laid out in the class <em>Car</em>&quot;.</p>
+<p>The newly built object shares certain aspects with its blueprint. If you call the method <em>honk</em> on your object, like so:</p>
+<code>myCar.honk();</code>
+<p>the Java interpreter will go to the class of <em>myCar</em> and look up which code it actually needs to execute, which is defined in the <em>honk</em> method of class <em>Car</em>.</p>
+<p>Ok, nothing shockingly new here. Enter JavaScript.</p>
+<h2 id="a-classless-society">A classless society</h2>
+<p>JavaScript does not have classes. But as in other languages, we would like to tell the interpreter that it should built our <em>myCar</em> object following a certain pattern or schema or blueprint &#8211; it would be quite tedious to create every car object from scratch, &quot;manually&quot; giving it the attributes and methods it needs every time we build it.</p>
+<p>If we were to create 30 car objects based on the <em>Car</em> class in Java, this object-class relationship provides us with 30 cars that are able to <em>drive</em> and <em>honk</em> without us having to write 30 <em>drive</em> and <em>honk</em> methods.</p>
+<p>How is this achieved in JavaScript? Instead of an object-class relationship, there is an object-object relationship.</p>
+<p>Where in Java our <em>myCar</em>, asked to honk, says &quot;go look at this class over there, which is my <em>blueprint</em>, to find the code you need&quot;, JavaScript says &quot;go look at that other object over there, which is my <em>prototype</em>, it has the code you are looking for&quot;.</p>
+<p>Building objects via an object-object relationship is called <em>Prototype-based programming</em>, versus <em>Class-based programming</em> used in more traditional languages like Java.</p>
+<p>Both are perfectly valid implementations of the object-oriented programming paradigm &#8211; it&#8217;s just two different approaches.</p>
+<h2 id="creating-objects">Creating objects</h2>
+<p>Let&#8217;s dive into code a bit, shall we? How could we set up our code in order to allow us to create our <em>myCar</em> object, ending up with an object that is a <em>Car</em> and can therefore <em>honk</em> and <em>drive</em>?</p>
+<p>Well, in the most simple sense, we can create our object completely from scratch, or <em>ex nihilo</em> if you prefer the boaster expression.</p>
+<p>It works like this:</p>
+<code>var myCar = {}
+
+myCar.honk = function() {
+  console.log(&quot;honk honk&quot;);
+}
+
+myCar.drive = function() {
+  console.log(&quot;vrooom...&quot;);
+}</code>
+<p>This gives us an object called <em>myCar</em> that is able to honk and drive:</p>
+<code>myCar.honk()  // outputs &quot;honk honk&quot;
+myCar.drive() // outputs &quot;vrooom...&quot;</code>
+<p>However, if we were to create 30 cars this way, we would end up defining the honk and drive behaviour of every single one, something we said we want to avoid.</p>
+<p>In real life, if we made a living out of creating, say, pencils, and we don&#8217;t want to create every pencil individually by hand, then we would consider building a pencil-making machine, and have this machine create the pencils for us.</p>
+<p>After all, that&#8217;s what we implicitly do in a class-based language like Java &#8211; by defining a class <em>Car</em>, we get the car-maker for free:</p>
+<code>Car myCar = new Car();</code>
+<p>will built the <em>myCar</em> object for us based on the <em>Car</em> blueprint. Using the <em>new</em> keyword does all the magic for us.</p>
+<p>JavaScript, however, leaves the responsibility of building an object creator to us. Furthermore, it gives us a lot of freedom regarding the way we actually build our objects.</p>
+<p>In the most simple case, we can write a function which creates &quot;plain&quot; objects that are exactly like our &quot;ex nihilo&quot; object, and that don&#8217;t really share any behaviour &#8211; they just happen to roll out of the factory with the same behaviour copied onto every single one, if you want so.</p>
+<p>Or, we can write a special kind of function that not only creates our objects, but also does some behind-the-scenes magic which links the created objects with their creator. This allows for a true sharing of behaviour: functions that are available on all created objects point to a single implementation. If this function implementation changes after objects have been created, which is possible in JavaScript, the behaviour of all objects sharing the function will change accordingly.</p>
+<p>Let&#8217;s examine all possible ways of creating objects in detail.</p>
+<h3 id="using-a-simple-function-to-create-plain-objects">Using a simple function to create plain objects</h3>
+<p>In our first example, we created a plain <em>myCar</em> object out of thin air &#8211; we can simply wrap the creation code into a function, which gives us a very basic object creator:</p>
+<code>function makeCar() {
+  var newCar = {}
+  newCar.honk = function() {
+    console.log(&quot;honk honk&quot;);
+  }
+}</code>
+<p>For the sake of brevity, the <em>drive</em> function has been omitted.</p>
+<p>We can then use this function to mass-produce cars:</p>
+<code>function makeCar() {
+  var newCar = {}
+  newCar.honk = function() {
+    console.log(&quot;honk honk&quot;);
+  }
+  return newCar;
+}
+
+myCar1 = makeCar();
+myCar2 = makeCar();
+myCar3 = makeCar();</code>
+<p>One downside of this approach is efficiency: for every <em>myCar</em> object that is created, a new <em>honk</em> function is created and attached &#8211; creating 1,000 objects means that the JavaScript interpreter has to allocate memory for 1,000 functions, although they all implement the same behaviour. This results in an unnecessarily high memory footprint of the application.</p>
+<p>Secondly, this approach deprives us of some interesting opportunities. These <em>myCar</em> objects don&#8217;t share anything &#8211; they were built by the same creator function, but are completely independent from each other.</p>
+<p>It&#8217;s really like with real cars from a real car factory: They all look the same, but once they leave the assembly line, they are totally independent. If the manufacturer should decide that pushing the horn on already produced cars should result in a different type of honk, all cars would have to be returned to the factory and modified.</p>
+<p>In the virtual universe of JavaScript, we are not bound to such limits. By creating objects in a more sophisticated way, we are able to magically change the behaviour of all created objects at once.</p>
+<h3 id="using-a-constructor-to-create-objects">Using a constructor to create objects</h3>
+<p>In JavaScript, the entities that create objects with shared behaviour are functions which are called in a special way. These special functions are called <em>constructors</em>.</p>
+<p>Let&#8217;s create a constructor for cars. We are going to call this function <em>Car</em>, with a capital <em>C</em>, which is common practice to indicate that this function is a constructor.</p>
+<p>Because we are going to encounter two new concepts that are both necessary for shared object behaviour to work, we are going to approach the final solution in two steps.</p>
+<p>Step one is to recreate the previous solution (where a common function spilled out independent car objects), but this time using a constructor:</p>
+<code>function Car() {
+  this.honk = function() {
+    console.log(&quot;honk honk&quot;);
+  }
+}</code>
+<p>When this function is called using the <em>new</em> keyword, like so:</p>
+<code>var myCar = new Car();</code>
+<p>it implicitly returns a newly created object with the honk function attached.</p>
+<p>Using <em>this</em> and <em>new</em> makes the explicit creation and return of the new object unnecessary &#8211; it is created and returned &quot;behind the scenes&quot; (i.e., the <em>new</em> keyword is what creates the new, &quot;invisible&quot; object, and secretly passes it to the <em>Car</em> function as its <em>this</em> variable).</p>
+<p>You can think of the mechanism at work a bit like in this pseudo-code:</p>
+<code>// Pseudo-code, for illustration only!
+
+function Car(this) {
+  this.honk = function() {
+    console.log(&quot;honk honk&quot;);
+  }
+  return this;
+}
+
+var newObject = {}
+var myCar = Car(newObject);</code>
+<p>As said, this is more or less like our previous solution &#8211; we don&#8217;t have to create every car object manually, but we still cannot modify the <em>honk</em> behaviour only once and have this change reflected in all created cars.</p>
+<p>But we laid the first cornerstone for it. By using a constructor, all objects received a special property that links them to their constructor:</p>
+<code>function Car() {
+  this.honk = function() {
+    console.log(&quot;honk honk&quot;);
+  }
+}
+
+var myCar1 = new Car();
+var myCar2 = new Car();
+
+console.log(myCar1.constructor); // outputs [Function: Car]
+console.log(myCar2.constructor); // outputs [Function: Car]</code>
+<p>All created <em>myCars</em> are linked to the <em>Car</em> constructor. This is what actually makes them a class of related objects, and not just a bunch of objects that happen to have similar names and identical functions.</p>
+<p>Now we have finally reached the moment to get back to the mysterious <em>prototype</em> we talked about in the introduction.</p>
+<h3 id="using-prototyping-to-efficiently-share-behaviour-between-objects">Using prototyping to efficiently share behaviour between objects</h3>
+<p>As stated there, while in class-based programming the class is the place to put functions that all objects will share, in prototype-based programming, the place to put these functions is the object which acts as the prototype for our objects at hand.</p>
+<p>But where is the object that is the prototype of our <em>myCar</em> objects &#8211; we didn&#8217;t create one!</p>
+<p>It has been implicitly created for us, and is assigned to the</p>
+<code>Car.prototype</code>
+<p>property (in case you wondered, JavaScript functions are objects that have properties, too).</p>
+<p>Here is the key to sharing functions between objects: Whenever we call a function on an object, the JavaScript interpreter tries to find that function within the queried object. But if it doesn&#8217;t find the function within the object itself, it asks the object for the pointer to it&#8217;s prototype, then goes to the prototype, and asks for the function there. If it is found, it is then executed.</p>
+<p>This means that we can create <em>myCar</em> objects without any functions, create the <em>honk</em> function in their prototype, and end up having <em>myCar</em> objects that know how to honk &#8211; because everytime the interpreter tries to execute the <em>honk</em> function on one of the <em>myCar</em> objects, it will be redirected to the prototype, and execute the <em>honk</em> function which is defined there.</p>
+<p>Here is how this setup can be achieved:</p>
+<code>function Car() {}
+
+Car.prototype.honk = function() {
+  console.log(&quot;honk honk&quot;);
+}
+
+var myCar1 = new Car();
+var myCar2 = new Car();
+
+myCar1.honk(); // executes Car.prototype.honk() and outputs &quot;honk honk&quot;
+myCar2.honk(); // executes Car.prototype.honk() and outputs &quot;honk honk&quot;</code>
+<p>Our constructor is now empty, because for our very simple cars, no additional setup is necessary.</p>
+<p>Because both <em>myCars</em> are created through this constructor, their prototype points to <em>Car.prototype</em> &#8211; executing <em>myCar1.honk()</em> results in <em>Car.prototype.honk()</em> being executed.</p>
+<p>Let&#8217;s see what this enables us to do. In JavaScript, objects can be changed at runtime. This holds true for prototypes, too. Which is why we can change the <em>honk</em> behaviour of all our cars even after they have been created:</p>
+<code>function Car() {}
+
+Car.prototype.honk = function() {
+  console.log(&quot;honk honk&quot;);
+}
+
+var myCar1 = new Car();
+var myCar2 = new Car();
+
+myCar1.honk(); // executes Car.prototype.honk() and outputs &quot;honk honk&quot;
+myCar2.honk(); // executes Car.prototype.honk() and outputs &quot;honk honk&quot;
+
+Car.prototype.honk = function() {
+  console.log(&quot;meep meep&quot;);
+}
+
+myCar1.honk(); // executes Car.prototype.honk() and outputs &quot;meep meep&quot;
+myCar2.honk(); // executes Car.prototype.honk() and outputs &quot;meep meep&quot;</code>
+<p>Of course, we can also add additional functions at runtime:</p>
+<code>function Car() {}
+
+Car.prototype.honk = function() {
+  console.log(&quot;honk honk&quot;);
+}
+
+var myCar1 = new Car();
+var myCar2 = new Car();
+
+Car.prototype.drive = function() {
+  console.log(&quot;vrooom...&quot;);
+}
+
+myCar1.drive(); // executes Car.prototype.honk() and outputs &quot;vrooom...&quot;
+myCar2.drive(); // executes Car.prototype.honk() and outputs &quot;vrooom...&quot;</code>
+<p>But we could even decide to treat only one of our cars differently:</p>
+<code>function Car() {}
+
+Car.prototype.honk = function() {
+  console.log(&quot;honk honk&quot;);
+}
+
+var myCar1 = new Car();
+var myCar2 = new Car();
+
+myCar1.honk(); // executes Car.prototype.honk() and outputs &quot;honk honk&quot;
+myCar2.honk(); // executes Car.prototype.honk() and outputs &quot;honk honk&quot;
+
+myCar2.honk = function() {
+  console.log(&quot;meep meep&quot;);
+}
+
+myCar1.honk(); // executes Car.prototype.honk() and outputs &quot;honk honk&quot;
+myCar2.honk(); // executes Car.prototype.honk() and outputs &quot;meep meep&quot;</code>
+<p>It&#8217;s important to understand what happens behind the scenes in this example. As we have seen, when calling a function on an object, the interpreter follows a certain path to find the actual location of that function.</p>
+<p>While for <em>myCar1</em>, there still is no <em>honk</em> function within that object itself, that no longer holds true for <em>myCar2</em>. When the interpreter calls <em>myCar2.honk</em>, there now is a function within <em>myCar2</em> itself. Therefore, the interpreter no longer follows the path to the prototype of <em>myCar2</em>, and executes the function within <em>myCar2</em> instead.</p>
+<p>That&#8217;s one of the major differences to class-based programming: while objects are relatively &quot;rigid&quot; e.g. in Java, where the structure of an object cannot be changed at runtime, in JavaScript, the prototype-based approach links objects of a certain class more loosely together, which allows to change the structure of objects at any time.</p>
+<h2 id="object-orientation-prototyping-and-inheritance">Object-orientation, prototyping, and inheritance</h2>
+<p>So far, we haven&#8217;t talked about inheritance in JavaScript, so let&#8217;s do this now.</p>
+<p>It&#8217;s useful to share behaviour between a certain class of objects, but there are cases where we would like to share behaviour between different, but similar classes of objects.</p>
+<p>Imagine our virtual world not only had cars, but also bikes. Both drive, but where a car has a horn, a bike has a bell.</p>
+<p>Being able to <em>drive</em> makes both objects <em>vehicles</em>, but not sharing the <em>honk</em> and <em>ring</em> distinguishes them.</p>
+<p>We could illustrate their shared and local behaviour as well as their relationship to each other as follows:</p>
+<code>         Vehicle
+         &gt; drive
+
+            |
+ ----------------------
+ |                    |
+
+Car                 Bike
+&gt; honk              &gt; ring</code>
+<p>Designing this relationship in a class-based language like Java is straightforward: We would define a class <em>Vehicle</em> with a method <em>drive</em>, and two classes <em>Car</em> and <em>Bike</em> which both <em>extend</em> the <em>Vehicle</em> class, and implement a <em>honk</em> and a <em>ring</em> class, respectively.</p>
+<p>This would make the car as well as bike objects inherit the drive behaviour through the inheritance of their classes.</p>
+<p>How does this work in JavaScript, where we don&#8217;t have classes, but prototypes?</p>
+<p>Let&#8217;s look at an example first, and then dissect it. To keep the code short for now, let&#8217;s only start with a car that inherits from a vehicle:</p>
+<code>function Vehicle() {}
+
+Vehicle.prototype.drive = function () {
+  console.log(&quot;vrooom...&quot;);
+}
+
+
+function Car() {}
+
+Car.prototype = new Vehicle();
+
+Car.prototype.honk = function() {
+  console.log(&quot;honk honk&quot;);
+}
+
+
+var myCar = new Car();
+
+myCar.honk();
+myCar.drive();</code>
+<p>In JavaScript, inheritance runs through a chain of prototypes.</p>
+<p>The prototype of the <em>Car</em> constructor is set to a newly created <em>vehicle</em> object, which establishes the link structure that allows the interpreter to look for methods in parent objects.</p>
+<p>The prototype of the <em>Vehicle</em> constructor has a function <em>drive</em>. Here is what happens when the <em>myCar</em> object is asked to <em>drive()</em>:</p>
+<ul>
+<li>The interpreter looks for a <em>drive</em> method within the <em>myCar</em> object, which does not exist</li>
+<li>The interpreter then asks the <em>myCar</em> object for its prototype, which is the prototype of its constructor <em>Car</em></li>
+<li>When looking at <em>Car.prototype</em>, the interpreter sees a <em>vehicle</em> object which has a function <em>honk</em> attached, but no <em>drive</em> function</li>
+<li>Thus, the interpreter now asks this <em>vehicle</em> object for its prototype, which is the prototype of its constructor <em>Vehicle</em></li>
+<li>When looking at <em>Vehicle.prototype</em>, the interpreter sees an object which has a <em>drive</em> function attached &#8211; the interpreter now knows which code implements the <em>myCar.drive()</em> behaviour, and executes it</li>
+</ul>
+
+				
+			</div>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	
+<!-- You can start editing here. -->
+
+<div id="comment-wrapper">
+
+                     <div id="disqus_thread"></div>
+                     <script type="text/javascript">
+                      var disqus_shortname = 'thelogbookofmanuelkiessling';
+                      var disqus_identifier = '568';
+                      var disqus_url = 'http://manuel.kiessling.net/2012/03/23/object-orientation-and-inheritance-in-javascript-a-comprehensive-explanation/';
+                      (function() {
+                       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                       dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                     </script>
+                     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div> <!-- end of comment-wrapper -->
+
+	<!-- <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+				xmlns:dc="http://purl.org/dc/elements/1.1/"
+				xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+			<rdf:Description rdf:about="/2012/03/23/object-orientation-and-inheritance-in-javascript-a-comprehensive-explanation/"
+    dc:identifier="/2012/03/23/object-orientation-and-inheritance-in-javascript-a-comprehensive-explanation/"
+    dc:title="Object-orientation and inheritance in JavaScript: a comprehensive explanation"
+    trackback:ping="/2012/03/23/object-orientation-and-inheritance-in-javascript-a-comprehensive-explanation/trackback/" />
+</rdf:RDF> -->
+
+	
+<div>
+
+<div class="center-column-sidebar">
+
+<ul id="sidebar">
+<li id="text-3" class="widget widget_text">			<div class="textwidget"><img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=75" width="75" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
+This is the homepage and blog of Manuel Kiessling.
+<br />
+Software gardener, test driven developer in PHP, Rails and JavaScript, Agilist.
+<br />
+Author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>. Father of two. CTO at MyHammer.
+<br />
+Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
+</div>
+		</li>
+</ul>
+	<div class="clearboth"><!-- --></div>
+
+	<div id="footer">
+
+			<div class="bottom-link"><a href="index.html#top">BACK TO THE TOP</a></div>
+
+			<div class="clearboth"><!-- --></div>
+
+	</div>
+
+</div>
+
+<!-- Designed by Jeff Ngan - http://equivocality.com/wu-wei/ -->
+
+
+</div>
+</div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2127388-5']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+</html>
