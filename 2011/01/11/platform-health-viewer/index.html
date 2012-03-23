@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>New project: Platform Health Viewer »  The Log Book of Manuel Kiessling</title>
+
+<meta name="description" content="" />
+
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,800' rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="../../../../wp-content/themes/wu-wei/style.css" type="text/css" />
+<link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling RSS Feed" href="../../../../feed/" />
+<link rel="alternate" type="application/atom+xml" title="The Log Book of Manuel Kiessling Atom Feed" href="../../../../feed/atom/" />
+<link rel="pingback" href="/xmlrpc.php" />
+
+
+<link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling &raquo; New project: Platform Health Viewer Comments Feed" href="feed/" />
+<script type='text/javascript' src='../../../../wp-includes/js/comment-reply.js%3Fver=20090102'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="../../../../wp-includes/wlwmanifest.xml" /> 
+<link rel='index' title='The Log Book of Manuel Kiessling' href='/' />
+<link rel='start' title='siqqel: SQL-Abfragen direkt aus HTML heraus ausführen und darstellen' href='../../../../2010/04/08/siqqel-ein-sehr-nutzliches-tool-fur-entwickler-business-analysten-produktmanager-und-qaler/index.html' />
+<link rel='prev' title='Testgetriebene Administration &#8211; test driven administration' href='../../../../2010/09/01/testgetriebene-administration-test-driven-administration/index.html' />
+<link rel='next' title='Neues Projekt: Platform Health Viewer' href='../neues-projekt-platform-health-viewer/index.html' />
+<meta name="generator" content="WordPress 2.9.2" />
+<link rel='canonical' href='index.html' />
+</head>
+
+<body id="top" class="">
+
+	<div class="full-column">
+
+		<div class="center-column">
+
+			<ul id="menu">
+        <li><a href="../../../../" ><span></span><br />HOME</a></li>
+        <li><a href="../../../../projects/"><span></span><br />PROJECTS</a></li>
+				<li><a href="../../../../contact/"><span></span><br />CONTACT</a></li>
+				<li><a href="http://photographs.manuel.kiessling.net/"><span></span><br />PHOTOGRAPHS</a></li>
+				<li><a href="../../../../feed/"><span></span><br />RSS</a></li>
+				<li class="last"><a href="index.html#sidebar"><span></span><br />ABOUT</a></li>
+			</ul>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	</div>
+
+<div class="center-column">
+
+	<div id="header">
+
+		<div class="blog-name"><a href="../../../../">The Log Book of Manuel Kiessling</a></div>
+
+	</div>
+
+	
+		<div class="post-233 post hentry category-english-articles category-software" id="post-233">
+
+			<div class="post-info single">
+
+				<h1><a href="." rel="bookmark" title="Permanent Link to New project: Platform Health Viewer">New project: Platform Health Viewer</a></h1>
+
+				<div class="timestamp">January 11, 2011</div>
+				<div class="clearboth"><!-- --></div>
+
+			</div>
+
+
+			<div class="post-content single">
+				<p>
+Platform Health Viewer is my current Ruby on Rails pet project.
+</p>
+<p>
+Once stable, it will allow users to easily collect and visualize different types of statistical data which is typically produced by internet platforms, like CPU performance, user logins, HTTP requests etc.
+</p>
+<p>
+The main application is build on <a href="http://rubyonrails.org/">Rails</a>, the server used for data collection is written in <a href="http://nodejs.org/">node.js</a>, the web interface makes heavy use of <a href="http://jquery.com/">jQuery</a> and uses <a href="http://raphaeljs.com/">Raphaël</a> to create SVG graphs. Mass data is saved in a SQL db, other data is stored using <a href="http://couchdb.apache.org/">CouchDB</a>.
+</p>
+<p>
+The project&#8217;s code is hosted on Github at <a href="https://github.com/ManuelKiessling/PlatformHealthViewer">https://github.com/ManuelKiessling/PlatformHealthViewer</a>.
+</p>
+<p>
+This video is a short introduction to the current alpha version of the project. A funny voice and lots of grammatical shortcomings are included for free:
+</p>
+
+<object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/HI6SRqz_3D0?fs=1&amp;hl=de_DE"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/HI6SRqz_3D0?fs=1" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>
+
+<br />
+<p />
+<p>
+
+Transcription of the video:
+
+<blockquote>
+Hi. Platform Health Viewer &#8211; or PHV &#8211; is my current pet project.
+<p/>
+I need an easy and lightweight way to collect and visualize the different key performance indicators of the web platform I&#8217;m responsible for &#8211; stuff like CPU performance of important systems, user logins, http requests.
+<p/>
+So I started to play around with Ruby on Rails, jQuery, CouchDB and node.js, and here is an early alpha I would like to demonstrate.
+<p/>
+My primary goal was to make the process from feeding data into the system to visualizing that data as simple as possible.
+<p/>
+In order to get data into the system, all you need to make is an HTTP call, which makes it very easy to collect data from very different sources.
+<p/>
+Let&#8217;s try an example. I would like to visualize the cpu usage of my local machine.
+<p/>
+I&#8217;m going to collect this data using a standard unix command, sar.
+<p/>
+That&#8217;s an important aspect of my approach: It doesn&#8217;t play any role for the Platform Health Viewer where the data comes from, you&#8217;re completely free to choose how to collect it.
+This way you can feed really anything into the system, from generic data like CPU load to highly individual stuff like the user logins of your specific web site.
+<p/>
+Ok, here is how I can get my cpu &#8220;usr&#8221; value on my OS X command line:
+<p/>
+sar 1 1| grep Average| cut -b 14-15
+<p/>
+Great, that will do.
+<p/>
+How do we push these values into the system? It&#8217;s a simple http post request using curl:
+<p/>
+curl &#8211;data &#8220;event[value]=`sar 1 1| grep Average| cut -b 14-15`&#038;event[source]=macbook&#038;event[name]=cpu_usr_percentage&#8221; http://localhost:3000/queue_event
+<p/>
+As you can see, the payload of the post requests is just 3 parameters: the source of the event, the name of the event, and its value.
+<p/>
+Again, you&#8217;re completely free here, you don&#8217;t need to configure event names and sources inside PHV &#8211; just define them when pushing data into the system, it will happily accept it. We will see in a moment how to make sense of different events that were pushed into the system.
+<p/>
+Ok, let&#8217;s use a small helper script I wrote in order to feed the CPU sys, idle, usr and nice values into my system:
+<p/>
+cat script/agents/macosx/cpu_overview_percent.sh
+<p/>
+As you can see, this is all done using only standard unix commands.
+<p/>
+Let&#8217;s start the script:
+<p/>
+bash ./script/agents/macosx/cpu_overview_percent.sh http://localhost:3000/ macbook
+<p/>
+I&#8217;m just providing two parameters here, the URL to my platform health viewer installation, which resides on the same host for this demo, and the source name, which I call &#8220;macbook&#8221;.
+<p/>
+As you can see, my script pushes all four CPU usage values into the system. Now let&#8217;s have a look at this data within platform health viewer.
+<p/>
+Well, the Dashboard is still empty, because we did not yet define any visualizations. But the &#8220;Tageditor&#8221; doesn&#8217;t show any events, too. This is because the events I pushed into the system have not yet been normalized to event-types.
+<p/>
+This is an additional step, because it will allow the system to push incoming events into the database as quickly as possible without the need to normalize those events regarding their name and source. This normalization is done using a rake task:
+<p/>
+rake queue:convert
+<p/>
+This task reads the events from the incoming queue, creates new event-types as needed, or connects the event values with existing event types if they already exists. It then deletes the incoming queue.
+<p/>
+Getting back to our tageditor, we can now see our 4 event types.
+<p/>
+An event type is the combination of an event source and an event name, so &#8220;macbook &#8211; cpu_idle_percentage&#8221; is one event type.
+<p/>
+Let&#8217;s see how we can use the tag editor to create something useful. Grouping one or more event types into a tag is what makes our data suitable for visualization. I&#8217;m not quite happy with the term &#8220;tag&#8221; by the way, maybe I will come up with something better.
+<p/>
+Anyway, let&#8217;s create a very simple tag which we can use to visualize exactly one value.
+<p/>
+I&#8217;m going to name my tag &#8220;macbook_cpu_usr&#8221;. It will hold all events whose source matches &#8220;macbook&#8221;, and whose name matches &#8220;cpu_usr_percentage&#8221;. I could type those parameters into the text box, but it&#8217;s easier to just drag&#8217;n'drop them there.
+<p/>
+Ok, let&#8217;s add this tag.
+<p/>
+Now we have this first tag, and to check if it works as expected, I can preview the values of the matching events.
+<p/>
+Let&#8217;s push some new values into our system and check if they are visible here.
+<p/>
+Ok, I&#8217;m starting my helper skript again in order to post new values to the server, and I start my rake task in order to normalize these values.
+<p/>
+Clicking again on &#8220;Show latest events&#8221; now shows these values.
+<p/>
+I will now start data push and normalization in a loop in order to get a lot of values.
+<p/>
+Ok, we still have no data visualization, so let&#8217;s do this now. Let&#8217;s switch to the Dashboard and add a frame, which is a container that will hold our graph.
+<p/>
+A frame is the visualization of all values connected to a tag, so I need to provide the name of the tag I want to visualize with this frame.
+<p/>
+&#8220;Add frame&#8221;, and here we go. A simple line graph representing one of my CPU values. The graph is actually an SVG, created using Raphael, an awesome JavaScript library.
+<p/>
+And thanks to jQuery, I can freely move and resize the graph.
+<p/>
+Let&#8217;s create a graph with all my CPU values in it. Back to the Tageditor, I&#8217;m going to drag all my values together.
+<p/>
+I can also create tags by combining event-sources and -names with already existing tags, as you can see here.
+<p/>
+Let&#8217;s check the values of my new tag, and there are all the different CPU values my script collects.
+<p/>
+Back to the Dashboard, I&#8217;m going to create another frame for my new tag. As you can see, this one contains 4 linegraphs and gives me a nice overview of my system&#8217;s CPU performance. Of course, a graph legend is needed, something that&#8217;s not yet implemented.
+<p/>
+Well, that&#8217;s it, that&#8217;s the current state of this project, I would love to hear your feedback, you can fork the code on github and drop me an e-mail.
+<p/>
+Thanks for your interest.
+</blockquote>
+
+</p>
+				
+			</div>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	
+<!-- You can start editing here. -->
+
+<div id="comment-wrapper">
+
+                     <div id="disqus_thread"></div>
+                     <script type="text/javascript">
+                      var disqus_shortname = 'thelogbookofmanuelkiessling';
+                      var disqus_identifier = '233';
+                      var disqus_url = 'http://manuel.kiessling.net/2011/01/11/platform-health-viewer/';
+                      (function() {
+                       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                       dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                     </script>
+                     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div> <!-- end of comment-wrapper -->
+
+	<!-- <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+				xmlns:dc="http://purl.org/dc/elements/1.1/"
+				xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+			<rdf:Description rdf:about="/2011/01/11/platform-health-viewer/"
+    dc:identifier="/2011/01/11/platform-health-viewer/"
+    dc:title="New project: Platform Health Viewer"
+    trackback:ping="/2011/01/11/platform-health-viewer/trackback/" />
+</rdf:RDF> -->
+
+	
+<div>
+
+<div class="center-column-sidebar">
+
+<ul id="sidebar">
+<li id="text-3" class="widget widget_text">			<div class="textwidget"><img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=75" width="75" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
+This is the homepage and blog of Manuel Kiessling.
+<br />
+Software gardener, test driven developer in PHP, Rails and JavaScript, Agilist.
+<br />
+Author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>. Father of two. CTO at MyHammer.
+<br />
+Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
+</div>
+		</li>
+</ul>
+	<div class="clearboth"><!-- --></div>
+
+	<div id="footer">
+
+			<div class="bottom-link"><a href="index.html#top">BACK TO THE TOP</a></div>
+
+			<div class="clearboth"><!-- --></div>
+
+	</div>
+
+</div>
+
+<!-- Designed by Jeff Ngan - http://equivocality.com/wu-wei/ -->
+
+
+</div>
+</div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2127388-5']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>Wie man Replikationsunterbrechung durch Deadlocks bei INSERT INTO … SELECT verhindert »  The Log Book of Manuel Kiessling</title>
+
+<meta name="description" content="" />
+
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,800' rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="../../../../wp-content/themes/wu-wei/style.css" type="text/css" />
+<link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling RSS Feed" href="../../../../feed/" />
+<link rel="alternate" type="application/atom+xml" title="The Log Book of Manuel Kiessling Atom Feed" href="../../../../feed/atom/" />
+<link rel="pingback" href="/xmlrpc.php" />
+
+
+<script type='text/javascript' src='../../../../wp-includes/js/comment-reply.js%3Fver=20090102'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="../../../../wp-includes/wlwmanifest.xml" /> 
+<link rel='index' title='The Log Book of Manuel Kiessling' href='/' />
+<link rel='start' title='siqqel: SQL-Abfragen direkt aus HTML heraus ausführen und darstellen' href='../../../../2010/04/08/siqqel-ein-sehr-nutzliches-tool-fur-entwickler-business-analysten-produktmanager-und-qaler/index.html' />
+<link rel='prev' title='Recycelter Artikel: &#8220;My-Hammer, das Fernsehen und die Serverlast&#8221;' href='../../../07/17/recycelter-artikel-my-hammer-das-fernsehen-und-die-serverlast/index.html' />
+<link rel='next' title='Database Change Management mithilfe von VCS: Teil 1' href='../../../../2010/02/26/database-change-management-mithilfe-von-vcs-teil-1/index.html' />
+<meta name="generator" content="WordPress 2.9.2" />
+<link rel='canonical' href='index.html' />
+</head>
+
+<body id="top" class="">
+
+	<div class="full-column">
+
+		<div class="center-column">
+
+			<ul id="menu">
+        <li><a href="../../../../" ><span></span><br />HOME</a></li>
+        <li><a href="../../../../projects/"><span></span><br />PROJECTS</a></li>
+				<li><a href="../../../../contact/"><span></span><br />CONTACT</a></li>
+				<li><a href="http://photographs.manuel.kiessling.net/"><span></span><br />PHOTOGRAPHS</a></li>
+				<li><a href="../../../../feed/"><span></span><br />RSS</a></li>
+				<li class="last"><a href="index.html#sidebar"><span></span><br />ABOUT</a></li>
+			</ul>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	</div>
+
+<div class="center-column">
+
+	<div id="header">
+
+		<div class="blog-name"><a href="../../../../">The Log Book of Manuel Kiessling</a></div>
+
+	</div>
+
+	
+		<div class="post-36 post hentry category-software" id="post-36">
+
+			<div class="post-info single">
+
+				<h1><a href="." rel="bookmark" title="Permanent Link to Wie man Replikationsunterbrechung durch Deadlocks bei INSERT INTO … SELECT verhindert">Wie man Replikationsunterbrechung durch Deadlocks bei INSERT INTO … SELECT verhindert</a></h1>
+
+				<div class="timestamp">August 7, 2007</div>
+				<div class="clearboth"><!-- --></div>
+
+			</div>
+
+
+			<div class="post-content single">
+				Der <a href="http://web.archive.org/web/20080407200839/http://www.my-hammer.de/showPage.php?id=auftragservice">My-Hammer Auftragsradar</a>, der unsere Auftragnehmer auf Wunsch regelmässig per E-Mail über neu eingestellte Auktionen anhand einstellbarer Filterkriterien informiert, baut bei jedem Durchlauf eine eigene Suchtabelle auf. Diese wird gefüllt mit einer Untermenge der Daten unserer Haupt-Auktionstabelle, nämlich nur den derzeit laufenden Auktionen.
+
+Die Verwendung von <em>INSERT INTO … SELECT</em> ist hier naheliegend, zum Beispiel so:
+
+<p class="wp_syntax"><p class="code"><pre class="sql"><span style="color: #993333; font-weight: bold">INSERT</span> <span style="color: #993333; font-weight: bold">INTO</span> Suchtabelle
+&nbsp;<span style="color: #993333; font-weight: bold">SELECT</span> a, b, c <span style="color: #993333; font-weight: bold">FROM</span> Auktionstabelle <span style="color: #993333; font-weight: bold">WHERE</span> x = y</pre></p></p>
+
+
+Es ergab sich folgendes Problem: Der Query wird wie jeder andere auch auf die Datenbankslaves repliziert. Dort wurde er auch korrekt ausgeführt. Jedoch nicht immer auf dem Master: hier kam es regelmäßig zu Deadlocks auf der Auktionstabelle, da dies eine InnoDB Tabelle ist (bei MyISAM Tabellen können Deadlocks nicht auftreten).
+
+Wenn ein MySQL Slave jedoch feststellt, dass beim gleichen Query auf dem Master und auf dem Slave unterschiedliche Fehler auftreten (Slave: no error; Master: deadlock), unterbricht dieser die Replikation. Es hilft dann nur ein <em>SET GLOBAL SQL_SLAVE_SKIP_COUNTER=1; START SLAVE;</em>.
+
+Ich habe mich daraufhin nach Lösungen umgeschaut. Erste Anlaufstelle ist das Kapitel <a href="http://web.archive.org/web/20080407200839/http://dev.mysql.com/doc/refman/5.1/de/innodb-deadlocks.html"><em>Vom Umgang mit Deadlocks</em></a> im MySQL Handbuch.
+
+Mein erster Versuch war, den 4. Tipp dieses Kapitels zu befolgen: Das Einstellen eines niedrigeren Isolationslevels. Da perfekte Datenkonsistenz für die benötigte Suchtabelle nicht nötig ist (<em>dirty reads</em> also akzeptabel sind), verwendete ich gleich den niedrigsten Level <em>READ UNCOMMITED</em>. Das Ergebnis war gelinde gesagt verheerend, es traten noch mehr Deadlocks auf als zuvor.
+
+Deshalb bin ich dazu übergegangen, die beteiligten Tabellen explizit mit einem <em>READ LOCK</em> zu sperren &#8211; viele Artikel zu diesem Thema haken diese Vorgehensweise sofort als nicht gangbar ab, da die Performance darunter leide. Da es sich beim Auftragsradar jedoch um einen Cronjob handelt, der nur alle paar Minuten einmal läuft, und der <em>INSERT INTO … SELECT</em> Query sehr schnell durchläuft, erschien mir das Risiko, eine unserer wichtigsten Tabellen für diesen Query zu sperren, als gering.
+
+Wie sich zeigte, brachte dies den gewünschten Erfolg: Seitdem sind an dieser Stelle keinerlei Deadlocks mehr aufgetreten, und der Rest der Plattform zeigt sich von den seltenen und kurzen Locks völlig unbeeindruckt.
+				
+			</div>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	
+<!-- You can start editing here. -->
+
+<div id="comment-wrapper">
+
+                     <div id="disqus_thread"></div>
+                     <script type="text/javascript">
+                      var disqus_shortname = 'thelogbookofmanuelkiessling';
+                      var disqus_identifier = '36';
+                      var disqus_url = 'http://manuel.kiessling.net/2007/08/07/wie-man-replikationsunterbrechung-durch-deadlocks-bei-insert-into-select-verhindert/';
+                      (function() {
+                       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                       dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                     </script>
+                     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div> <!-- end of comment-wrapper -->
+
+	<!-- <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+				xmlns:dc="http://purl.org/dc/elements/1.1/"
+				xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+			<rdf:Description rdf:about="/2007/08/07/wie-man-replikationsunterbrechung-durch-deadlocks-bei-insert-into-select-verhindert/"
+    dc:identifier="/2007/08/07/wie-man-replikationsunterbrechung-durch-deadlocks-bei-insert-into-select-verhindert/"
+    dc:title="Wie man Replikationsunterbrechung durch Deadlocks bei INSERT INTO … SELECT verhindert"
+    trackback:ping="/2007/08/07/wie-man-replikationsunterbrechung-durch-deadlocks-bei-insert-into-select-verhindert/trackback/" />
+</rdf:RDF> -->
+
+	
+<div>
+
+<div class="center-column-sidebar">
+
+<ul id="sidebar">
+<li id="text-3" class="widget widget_text">			<div class="textwidget"><img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=75" width="75" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
+This is the homepage and blog of Manuel Kiessling.
+<br />
+Software gardener, test driven developer in PHP, Rails and JavaScript, Agilist.
+<br />
+Author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>. Father of two. CTO at MyHammer.
+<br />
+Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
+</div>
+		</li>
+</ul>
+	<div class="clearboth"><!-- --></div>
+
+	<div id="footer">
+
+			<div class="bottom-link"><a href="index.html#top">BACK TO THE TOP</a></div>
+
+			<div class="clearboth"><!-- --></div>
+
+	</div>
+
+</div>
+
+<!-- Designed by Jeff Ngan - http://equivocality.com/wu-wei/ -->
+
+
+</div>
+</div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2127388-5']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+</html>

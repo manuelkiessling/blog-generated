@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>How hosting MyHammer started in a devops way back in the day »  The Log Book of Manuel Kiessling</title>
+
+<meta name="description" content="" />
+
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,800' rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="../../../../wp-content/themes/wu-wei/style.css" type="text/css" />
+<link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling RSS Feed" href="../../../../feed/" />
+<link rel="alternate" type="application/atom+xml" title="The Log Book of Manuel Kiessling Atom Feed" href="../../../../feed/atom/" />
+<link rel="pingback" href="/xmlrpc.php" />
+
+
+<link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling &raquo; How hosting MyHammer started in a devops way back in the day Comments Feed" href="feed/" />
+<script type='text/javascript' src='../../../../wp-includes/js/comment-reply.js%3Fver=20090102'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="../../../../wp-includes/wlwmanifest.xml" /> 
+<link rel='index' title='The Log Book of Manuel Kiessling' href='/' />
+<link rel='start' title='siqqel: SQL-Abfragen direkt aus HTML heraus ausführen und darstellen' href='../../../../2010/04/08/siqqel-ein-sehr-nutzliches-tool-fur-entwickler-business-analysten-produktmanager-und-qaler/index.html' />
+<link rel='prev' title='Deploying Symfony2 Applications to Amazon AWS with Scalarium' href='../../01/deploying-symfony2-applications-to-amazon-aws-with-scalarium/index.html' />
+<link rel='next' title='Cocoa: What to do if outlineView: objectValue ForTableColumn: byItem never gets called' href='../../15/what-to-do-if-outlineview-objectvaluefortablecolumn-byitem-is-never-called/index.html' />
+<meta name="generator" content="WordPress 2.9.2" />
+<link rel='canonical' href='index.html' />
+</head>
+
+<body id="top" class="">
+
+	<div class="full-column">
+
+		<div class="center-column">
+
+			<ul id="menu">
+        <li><a href="../../../../" ><span></span><br />HOME</a></li>
+        <li><a href="../../../../projects/"><span></span><br />PROJECTS</a></li>
+				<li><a href="../../../../contact/"><span></span><br />CONTACT</a></li>
+				<li><a href="http://photographs.manuel.kiessling.net/"><span></span><br />PHOTOGRAPHS</a></li>
+				<li><a href="../../../../feed/"><span></span><br />RSS</a></li>
+				<li class="last"><a href="index.html#sidebar"><span></span><br />ABOUT</a></li>
+			</ul>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	</div>
+
+<div class="center-column">
+
+	<div id="header">
+
+		<div class="blog-name"><a href="../../../../">The Log Book of Manuel Kiessling</a></div>
+
+	</div>
+
+	
+		<div class="post-433 post hentry category-english-articles category-software" id="post-433">
+
+			<div class="post-info single">
+
+				<h1><a href="." rel="bookmark" title="Permanent Link to How hosting MyHammer started in a devops way back in the day">How hosting MyHammer started in a devops way back in the day</a></h1>
+
+				<div class="timestamp">November 7, 2011</div>
+				<div class="clearboth"><!-- --></div>
+
+			</div>
+
+
+			<div class="post-content single">
+				<p>
+This here is just me, bragging about myself. You have been warned.
+</p>
+
+<p>
+<a href="../../../../wp-content/uploads/2011/11/manuel_kiessling_myhammer_fai.jpg"><img src="../../../../wp-content/uploads/2011/11/manuel_kiessling_myhammer_fai-300x225.jpg" alt="Manuel Kiessling in front of the very first MyHammer FAI server cluster" title="Manuel Kiessling in front of the very first MyHammer FAI server cluster" width="300" height="225" class="alignnone size-medium wp-image-434" /></a>
+</p>
+
+<p>
+This guy with the psychopathic look standing in a room full of rubbish in front of something that vaguely looks like computers is me standing in front of the first MyHammer server cluster, only days before the whole system went into production.
+</p>
+
+<p>
+It was 2005, and I had set up the whole system in a way I&#8217;m still quite proud of. Being the only systems administrator at the company at that time, I knew that I wouldn&#8217;t face happy times if I would set up the cluster in a traditional way, that is, machine by machine. Although it started small, the system was supposed to grow, especially regarding the web servers, and even I knew that while managing 13 servers individually was doable, it wasn&#8217;t fun, and managing several dozen machines just sounded like total nightmare.
+</p>
+
+<p>
+Which is why I thought about better ways to setup and manage the whole cluster. I ended up with a central installation server running <a href="http://fai-project.org/">FAI &#8211; Fully Automatic Installation</a>, and hosting a <a href="http://cfengine.com/community">cfengine</a> server. This way, new machines could be automatically provisioned with the operating system (Debian GNU/Linux) they needed by simply booting from their network adaptor, and new as well as existing systems could easily be maintained, configured, and updated via cfengine. No need to ever log in on a specific machine to change configuration or install software. A centralized syslog server completed the picture.
+</p>
+
+<p>
+cfengine was a major pain in the ass at times, and with Chef and Puppet there a way more sophisticated tools available today, but the overall system ran extremely well and could easily scale over time.
+</p>
+
+<p>
+Years later, the term Devops was coined, and I couldn&#8217;t help congratulating myself for getting it right so long ago.
+</p>
+				
+			</div>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	
+<!-- You can start editing here. -->
+
+<div id="comment-wrapper">
+
+                     <div id="disqus_thread"></div>
+                     <script type="text/javascript">
+                      var disqus_shortname = 'thelogbookofmanuelkiessling';
+                      var disqus_identifier = '433';
+                      var disqus_url = 'http://manuel.kiessling.net/2011/11/07/how-hosting-myhammer-started-in-a-devops-way-back-in-the-day/';
+                      (function() {
+                       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                       dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                     </script>
+                     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div> <!-- end of comment-wrapper -->
+
+	<!-- <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+				xmlns:dc="http://purl.org/dc/elements/1.1/"
+				xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+			<rdf:Description rdf:about="/2011/11/07/how-hosting-myhammer-started-in-a-devops-way-back-in-the-day/"
+    dc:identifier="/2011/11/07/how-hosting-myhammer-started-in-a-devops-way-back-in-the-day/"
+    dc:title="How hosting MyHammer started in a devops way back in the day"
+    trackback:ping="/2011/11/07/how-hosting-myhammer-started-in-a-devops-way-back-in-the-day/trackback/" />
+</rdf:RDF> -->
+
+	
+<div>
+
+<div class="center-column-sidebar">
+
+<ul id="sidebar">
+<li id="text-3" class="widget widget_text">			<div class="textwidget"><img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=75" width="75" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
+This is the homepage and blog of Manuel Kiessling.
+<br />
+Software gardener, test driven developer in PHP, Rails and JavaScript, Agilist.
+<br />
+Author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>. Father of two. CTO at MyHammer.
+<br />
+Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
+</div>
+		</li>
+</ul>
+	<div class="clearboth"><!-- --></div>
+
+	<div id="footer">
+
+			<div class="bottom-link"><a href="index.html#top">BACK TO THE TOP</a></div>
+
+			<div class="clearboth"><!-- --></div>
+
+	</div>
+
+</div>
+
+<!-- Designed by Jeff Ngan - http://equivocality.com/wu-wei/ -->
+
+
+</div>
+</div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2127388-5']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>Database Change Management mithilfe von VCS: Teil 1 »  The Log Book of Manuel Kiessling</title>
+
+<meta name="description" content="" />
+
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,800' rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="../../../../wp-content/themes/wu-wei/style.css" type="text/css" />
+<link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling RSS Feed" href="../../../../feed/" />
+<link rel="alternate" type="application/atom+xml" title="The Log Book of Manuel Kiessling Atom Feed" href="../../../../feed/atom/" />
+<link rel="pingback" href="/xmlrpc.php" />
+
+
+<script type='text/javascript' src='../../../../wp-includes/js/comment-reply.js%3Fver=20090102'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="../../../../wp-includes/wlwmanifest.xml" /> 
+<link rel='index' title='The Log Book of Manuel Kiessling' href='/' />
+<link rel='start' title='siqqel: SQL-Abfragen direkt aus HTML heraus ausführen und darstellen' href='../../../04/08/siqqel-ein-sehr-nutzliches-tool-fur-entwickler-business-analysten-produktmanager-und-qaler/index.html' />
+<link rel='prev' title='Wie man Replikationsunterbrechung durch Deadlocks bei INSERT INTO … SELECT verhindert' href='../../../../2007/08/07/wie-man-replikationsunterbrechung-durch-deadlocks-bei-insert-into-select-verhindert/index.html' />
+<link rel='next' title='siqqel: SQL-Abfragen direkt aus HTML heraus ausführen und darstellen' href='../../../04/08/siqqel-ein-sehr-nutzliches-tool-fur-entwickler-business-analysten-produktmanager-und-qaler/index.html' />
+<meta name="generator" content="WordPress 2.9.2" />
+<link rel='canonical' href='index.html' />
+</head>
+
+<body id="top" class="">
+
+	<div class="full-column">
+
+		<div class="center-column">
+
+			<ul id="menu">
+        <li><a href="../../../../" ><span></span><br />HOME</a></li>
+        <li><a href="../../../../projects/"><span></span><br />PROJECTS</a></li>
+				<li><a href="../../../../contact/"><span></span><br />CONTACT</a></li>
+				<li><a href="http://photographs.manuel.kiessling.net/"><span></span><br />PHOTOGRAPHS</a></li>
+				<li><a href="../../../../feed/"><span></span><br />RSS</a></li>
+				<li class="last"><a href="index.html#sidebar"><span></span><br />ABOUT</a></li>
+			</ul>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	</div>
+
+<div class="center-column">
+
+	<div id="header">
+
+		<div class="blog-name"><a href="../../../../">The Log Book of Manuel Kiessling</a></div>
+
+	</div>
+
+	
+		<div class="post-28 post hentry category-software" id="post-28">
+
+			<div class="post-info single">
+
+				<h1><a href="." rel="bookmark" title="Permanent Link to Database Change Management mithilfe von VCS: Teil 1">Database Change Management mithilfe von VCS: Teil 1</a></h1>
+
+				<div class="timestamp">February 26, 2010</div>
+				<div class="clearboth"><!-- --></div>
+
+			</div>
+
+
+			<div class="post-content single">
+				<strong>Dieser Artikel ist Work in Progress!</strong>
+
+<h3>Vorüberlegungen</h3>
+  
+Dieses Dokument beschreibt Werkzeuge und Prozesse, um Datenbankänderungen innerhalb von großen Softwareprojekten einfach, fehlerfrei und nachvollziehbar durchzuführen und zu managen.
+
+Zentraler Ansatz dieser Lösung ist: Datenbankänderungen und Codeänderungen sind <strong>prinzipiell genau dasselbe</strong>. Denn Datenbankänderungen haben genau wie Codeänderung die folgenden Eigenschaften:
+
+<ul>
+ <li>Sie ändern das Verhalten des Softwaresystems</li>
+ <li>Sie entwickeln sich verteilt in verschiedenen Projekten bzw. Branches, und müssen für Abnahme und Rollout/Release zusammengeführt werden</li>
+ <li>Beim Zusammenführen kann es Überschneidungen und Konflikte geben, die man mitbekommen und lösen können möchte</li>
+ <li>Man möchte sie auch später noch nachvollziehen können, also sehen wer wann was gemacht hat</li>
+ <li>Man möchte diese Änderungen ggf. einem Reviewprozess unterziehen</li>
+</ul>
+
+Wenn wir Datenbankänderungen in diesem Sinne genau wie Codeänderungen <em>verstehen</em>, macht es auch Sinn, Datenbankänderungen genau wie Codeänderungen zu <em>behandeln</em>. Und das bedeutet, diese innerhalb des bereits vorhandenen Entwicklungsprozesses zu managen und im selben VCS Repository zu verwalten.
+
+<h3>Abbildung der Datenbankänderungen im VCS</h3>
+
+Unter <em>Datenbankänderungen</em> müssen wir verstehen: Alle SQL Statements, welche die Strukturen oder Inhalte einer Datenbank verändern.
+
+Eine Datenbankänderung im Zuge eines Projekts, Bugfixes oder sonstigen Tickets ist daher folgerichtig eine Sammlung von SQL Statements, welche zusammen mit den Codeänderungen des zugehörigen Tickets im selben Branch vom Entwickler hinterlegt wird. Hinzu kommt, dass es eine klar definierte <em>Lokalität</em> für diese Änderung geben muss, damit ein Raum geschaffen ist, in dem Konflikte entstehen (und gelöst werden) können. So wie die gleichzeitige Änderung an der Datei <em>myFile.txt</em> in zwei verschiedenen, zu mergenden Branches zu einem Konflikt führt &#8211; da in beiden Branches die Datei den selben Speicherort, also dieselbe Lokalität besitzt &#8211; müssen auch Änderungen an derselben Tabelle in zwei Branches innerhalb derselben Lokalität des jeweiligen Branches stattfinden. Der vorgeschlagene Ansatz ist daher, die Struktur der Datenbank, also die Databases mit den darunterliegenden Tables, in einer analog aufgebauten Ordner-Datei-Struktur abzubilden.
+
+Die Lokalität  für die Tabelle <em>users.hobbies</em> wäre beispielsweise die Datei <em>/dbchanges/users/hobbies.sql</em> innerhalb des VCS. Abgebildet wird die gesamte DB Struktur, also alle Databases mit allen ihren Tables:
+
+<code>
+/dbchanges/users/hobbies.sql
+/dbchanges/users/contact.sql
+...
+/dbchanges/products/colors.sql
+/dbchanges/products/forms.sql
+...
+</code>
+
+und so weiter. Gerade bei komplexen Datenbanken macht es natürlich Sinn, diese Struktur mit einem Skript zu erzeugen, für MySQL kann man dazu in einem beliebigen Verzeichnis auf dem DB Server folgenden Code ausführen (geht davon aus, dass die MySQL Daten unterhalb /var/lib/mysql liegen):
+
+<code>
+find /var/lib/mysql -type f -name *.frm -exec dirname {} \;| cut -d "/" -f 5| xargs mkdir -pfind /var/lib/mysql -type f -name *.frm | cut -d "/" -f 5,6 | sed "s/.frm/.sql/g" | xargs touch
+</code>
+
+Diese Dateien nenne ich im folgenden <em>DB Change Container</em>.
+
+<h3>Prozessbeschreibung</h3>
+
+<h4>Während der Produktion eines neuen Release</h4>
+
+Wichtig ist, dass sämtliche DB Change Container nach einem Release, nachdem diese Änderungen also auf dem Produktivsystem angewendet wurden, wieder leer sind &#8211; denn zum Start der Produktion eines neuen Releases liegen noch keine neuen Änderungen für die DB vor.
+
+Nun beginnen die Entwickler, Tickets (Feature Requests, Bugs etc.) umzusetzen, einige gemeinsam in einem Branch, einige in eigenen Branches. Sind im Zuge einer Implementation Datenbankänderungen notwendig, hinterlegt der Entwickler innerhalb des zugehörigen Branches diese Änderungen nach folgendem Muster:
+
+<ul>
+ <li><u><strong>Case 1:</strong> Die Tabelle user.hobbies soll verändert werden (neues Feld, Feld löschen, Index anlegen oder löschen, einfügen, löschen oder ändern von Einträgen etc.)</u>
+   
+  Der Entwickler legt alle benötigten Statements in der Datei <em>/dbchanges/users/hobbies.sql</em> ab:
+
+  <code>
+USE users;
+ALTER TABLE hobbies ADD newfield1 INT NOT NULL AFTER userId;
+ALTER TABLE hobbies DROP oldfield;
+ALTER TABLE hobbies ADD newfield2 TINYINT NOT NULL;
+ALTER TABLE hobbies ADD INDEX (newfield2);
+INSERT INTO hobbies ( id, name, value ) VALUES (1234, 'hobbyname', 'hobbyvalue');
+  </code>
+ </li>
+
+ <li><u><strong>Case 2:</strong> Der Entwickler legt eine komplett neue Tabelle pets im vorhandenen Schema users an</u>
+    
+  Er erzeugt dazu eine neue Datei <em>/dbchanges/users/pets.sql</em> und füllt sie mit dem CREATE Statement (sowie ggf. INSERT Statements):
+
+  <code>
+USE users;
+CREATE TABLE pets(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ petname VARCHAR( 64 ) NOT NULL,
+ FULLTEXT ( petname )
+);
+  </code>
+ </li>
+
+ <li><u><strong>Case 3:</strong> Der Entwickler legt eine neue Database products und darin eine neue Tabelle colors an</u>
+ 
+   Er erzeugt einen neuen Ordner <em>/dbchanges/products</em> und darin eine Datei <em>colors.sql</em> mit folgendem Inhalt:
+   <code>
+CREATE DATABASE products;
+USE products;
+CREATE TABLE colors (
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ colorname VARCHAR( 24 ) NOT NULL);
+   </code>
+ </li>
+
+ <li><u><strong>Case 4:</strong> Der Entwickler löscht die Tabelle colors in der Database products</u>
+    
+   Er füllt die Datei <em>/dbchanges/products/colors.sql</em> mit folgendem Inhalt:
+   
+  <code>
+USE products;
+DROP TABLE colors;
+  </code>
+ </li>
+</ul>
+  
+Ansonsten läuft der Entwicklungsprozess wie gewohnt.
+
+<h4>Merge aller Tickets für den Release</h4>
+
+Werden nun verschiedene Tickets für den Release gebündelt, werden die einzelnen Branches wie gehabt gemerged. In Hinblick auf die DB Änderungen passiert nun folgendes:
+
+Sämtliche Änderungen in den einzelnen Branches unterhalb von <em>/dbchanges</em> werden naturgemäß unterhalb <em>/dbchanges</em> im Merge zusammengeführt. Hierbei greifen die bekannten VCS Mechanismen: Wurden Änderungen in einer Datei nur in einem einzigen Branch oder Commit vorgenommen, werden diese Änderungen einfach angewendet. Wurden Änderungen an einer Datei (also innerhalb derselben Lokalität) in mehreren Branches vorgenommen, kommt es zu einem Konflikt.
+
+Dies ist der erste wichtige Mechanismus der hilft, die drei Anforderungen &#8211; einfach, fehlerfrei und nachvollziehbar &#8211; zu gewährleisten: Da der Konflikt garantiert eintritt, ist auch garantiert, dass der Vorgang völlig automatisch die notwendige Aufmerksamkeit erzeugt und nicht übersehen werden kann.
+
+Nun muss, wie auch bei Codekonflikten, gelöst werden: Machen beide Änderungen Sinn, oder widersprechen sie sich? Wie genau kann man sie am sinnvollsten zusammenführen? Relevant ist hier nur, dass am Ende ein Set an Änderungsanweisungen in den Approval committet wird, welches in sich rund ist. Falls es eine eigene Test oder QA Datenbank gibt auf die diese Änderungen angewendet werden müssen, wird dies gemacht nachdem alle Tickets fertig gemerged wurden.
+
+<h4>Durchführung des Release</h4>
+
+Wurde im Vorfeld alles richtig gemacht, muss im Zuge des Rollout oder Release nur noch das zusammengefasste Set an Änderungen ermittelt werden, und diese müssen dann, entsprechend ihrer jeweiligen Eigenschaft, ausgeführt werden. Die Summe der Änderungen ergibt sich aus der Summe aller Anweisungen in den DB Change Containern unterhalb <em>/dbchanges</em> &#8211; hier macht es natürlich Sinn, dass man diese mithilfe eines Skripts &#8220;zusammensammelt&#8221;, aber ich gehe hier nicht näher darauf ein.
+
+Nach dem Rollout/Release, und vor dem Erzeugen neuer Branches, müssen dann im Trunk sämtliche Datenbank-Änderungsanweisungen aus den DB Change Containern entfernt werden (auch hier macht ein Skript wie z.B.
+
+<code>
+for f in `find . -type f -name *.sql`; do echo -n "" &gt; $f; done
+</code>
+
+Sinn, um diesen Schritt zu vereinfachen), und dies muss in den Trunk (oder von wo aus auch immer neue Branches gebildet werden) committet werden &#8211; denn sonst würden dieselben Änderungen beim nächsten Rollout erneut angewendet werden.
+
+				
+			</div>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	
+<!-- You can start editing here. -->
+
+<div id="comment-wrapper">
+
+                     <div id="disqus_thread"></div>
+                     <script type="text/javascript">
+                      var disqus_shortname = 'thelogbookofmanuelkiessling';
+                      var disqus_identifier = '28';
+                      var disqus_url = 'http://manuel.kiessling.net/2010/02/26/database-change-management-mithilfe-von-vcs-teil-1/';
+                      (function() {
+                       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                       dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                     </script>
+                     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div> <!-- end of comment-wrapper -->
+
+	<!-- <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+				xmlns:dc="http://purl.org/dc/elements/1.1/"
+				xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+			<rdf:Description rdf:about="/2010/02/26/database-change-management-mithilfe-von-vcs-teil-1/"
+    dc:identifier="/2010/02/26/database-change-management-mithilfe-von-vcs-teil-1/"
+    dc:title="Database Change Management mithilfe von VCS: Teil 1"
+    trackback:ping="/2010/02/26/database-change-management-mithilfe-von-vcs-teil-1/trackback/" />
+</rdf:RDF> -->
+
+	
+<div>
+
+<div class="center-column-sidebar">
+
+<ul id="sidebar">
+<li id="text-3" class="widget widget_text">			<div class="textwidget"><img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=75" width="75" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
+This is the homepage and blog of Manuel Kiessling.
+<br />
+Software gardener, test driven developer in PHP, Rails and JavaScript, Agilist.
+<br />
+Author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>. Father of two. CTO at MyHammer.
+<br />
+Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
+</div>
+		</li>
+</ul>
+	<div class="clearboth"><!-- --></div>
+
+	<div id="footer">
+
+			<div class="bottom-link"><a href="index.html#top">BACK TO THE TOP</a></div>
+
+			<div class="clearboth"><!-- --></div>
+
+	</div>
+
+</div>
+
+<!-- Designed by Jeff Ngan - http://equivocality.com/wu-wei/ -->
+
+
+</div>
+</div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2127388-5']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+</html>
