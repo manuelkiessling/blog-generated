@@ -4,7 +4,7 @@
 <head profile="http://gmpg.org/xfn/11">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-<title>How hosting MyHammer started in a devops way back in the day »  The Log Book of Manuel Kiessling</title>
+<title>Talk: PHP 5.4 &#8211; die wichtigsten Neuerungen im Überblick »  The Log Book of Manuel Kiessling</title>
 
 <meta name="description" content="" />
 
@@ -15,14 +15,13 @@
 <link rel="pingback" href="/xmlrpc.php" />
 
 
-<link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling &raquo; How hosting MyHammer started in a devops way back in the day Comments Feed" href="feed/" />
+<link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling &raquo; Talk: PHP 5.4 &#8211; die wichtigsten Neuerungen im Überblick Comments Feed" href="feed/" />
 <script type='text/javascript' src='../../../../wp-includes/js/comment-reply.js%3Fver=20090102'></script>
 <link rel="EditURI" type="application/rsd+xml" title="RSD" href="/xmlrpc.php?rsd" />
 <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="../../../../wp-includes/wlwmanifest.xml" /> 
 <link rel='index' title='The Log Book of Manuel Kiessling' href='/' />
 <link rel='start' title='siqqel: SQL-Abfragen direkt aus HTML heraus ausführen und darstellen' href='../../../../2010/04/08/siqqel-ein-sehr-nutzliches-tool-fur-entwickler-business-analysten-produktmanager-und-qaler/index.html' />
-<link rel='prev' title='Deploying Symfony2 Applications to Amazon AWS with Scalarium' href='../../01/deploying-symfony2-applications-to-amazon-aws-with-scalarium/index.html' />
-<link rel='next' title='Cocoa: What to do if outlineView: objectValue ForTableColumn: byItem never gets called' href='../../15/what-to-do-if-outlineview-objectvaluefortablecolumn-byitem-is-never-called/index.html' />
+<link rel='prev' title='Object-orientation and inheritance in JavaScript: a comprehensive explanation' href='../../23/object-orientation-and-inheritance-in-javascript-a-comprehensive-explanation/index.html' />
 <meta name="generator" content="WordPress 2.9.2" />
 <link rel='canonical' href='index.html' />
 </head>
@@ -57,18 +56,18 @@
 	</div>
 
 	
-		<div class="post-433 post hentry category-english-articles category-software" id="post-433">
+		<div class="post-600 post hentry category-deutsche-artikel category-software" id="post-600">
 
 			<div class="post-info single">
 
-				<h1><a href="." rel="bookmark" title="Permanent Link to How hosting MyHammer started in a devops way back in the day">How hosting MyHammer started in a devops way back in the day</a></h1>
+				<h1><a href="." rel="bookmark" title="Permanent Link to Talk: PHP 5.4 &#8211; die wichtigsten Neuerungen im Überblick">Talk: PHP 5.4 &#8211; die wichtigsten Neuerungen im Überblick</a></h1>
 
-        <div class="timestamp">November 7, 2011</div>
+        <div class="timestamp">March 24, 2012</div>
 
         <div class="clearboth"><!-- --></div>
 
         <div id="sharing">
-                  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://manuel.kiessling.net/2011/11/07/how-hosting-myhammer-started-in-a-devops-way-back-in-the-day/" data-text="How hosting MyHammer started in a devops way back in the day" data-via="manuelkiessling">Tweet</a>
+                  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://manuel.kiessling.net/2012/03/24/talk-php-5-4-die-wichtigsten-neuerungen-im-ueberblick/" data-text="Talk: PHP 5.4 &#8211; die wichtigsten Neuerungen im Überblick" data-via="manuelkiessling">Tweet</a>
           <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 
           <br />
@@ -90,32 +89,12 @@
 
 			<div class="post-content single">
 				<p>
-This here is just me, bragging about myself. You have been warned.
+  Am 14. März 2012 fand das erste Treffen der Symfony User Group Berlin statt. Ich habe dort einen kurzen Talk mit dem Titel <em>PHP 5.4 &#8211; die wichtigsten Neuerungen im Überblick</em> gehalten. Die Folien des Talks gibt es <a href="/wp-content/uploads/2012/03/Manuel-Kiessling-PHP-5.4-Die-wichtigsten-Neuerungen-im-Überblick.pdf" title="Präsentation 'PHP 5.4 - die wichtigsten Neuerungen im Überblick' von Manuel Kiessling als PDF-Download">hier zum Download als PDF</a> und <a href="http://www.slideshare.net/manuelkiessling/php-54-die-wichtigsten-neuerungen" title="Präsentation 'PHP 5.4 - die wichtigsten Neuerungen im Überblick' von Manuel Kiessling online bei SlideShare">hier bei Slideshare</a>. Einen Videomitschnitt gibt es <a href="http://www.ustream.tv/recorded/21104071/highlight/251550" title="Videomitschnitt der Präsentation 'PHP 5.4 - die wichtigsten Neuerungen im Überblick' von Manuel Kiessling">bei Ustream</a>.
 </p>
 
-<p>
-<a href="../../../../wp-content/uploads/2011/11/manuel_kiessling_myhammer_fai.jpg"><img src="../../../../wp-content/uploads/2011/11/manuel_kiessling_myhammer_fai-300x225.jpg" alt="Manuel Kiessling in front of the very first MyHammer FAI server cluster" title="Manuel Kiessling in front of the very first MyHammer FAI server cluster" width="300" height="225" class="alignnone size-medium wp-image-434" /></a>
-</p>
+<div style="width:510px" id="__ss_12011306"> <strong style="display:block;margin:12px 0 4px"><a href="http://www.slideshare.net/manuelkiessling/php-54-die-wichtigsten-neuerungen" title="PHP 5.4: Die wichtigsten Neuerungen im Überblick" target="_blank">PHP 5.4: Die wichtigsten Neuerungen im Überblick</a></strong> <iframe src="http://www.slideshare.net/slideshow/embed_code/12011306?rel=0" width="510" height="426" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe> <div style="padding:5px 0 12px"> View more <a href="http://www.slideshare.net/thecroaker/death-by-powerpoint" target="_blank">PowerPoint</a> from <a href="http://www.slideshare.net/manuelkiessling" target="_blank">Manuel Kiessling</a> </div> </div>
 
-<p>
-This guy with the psychopathic look standing in a room full of rubbish in front of something that vaguely looks like computers is me standing in front of the first MyHammer server cluster, only days before the whole system went into production.
-</p>
-
-<p>
-It was 2005, and I had set up the whole system in a way I&#8217;m still quite proud of. Being the only systems administrator at the company at that time, I knew that I wouldn&#8217;t face happy times if I would set up the cluster in a traditional way, that is, machine by machine. Although it started small, the system was supposed to grow, especially regarding the web servers, and even I knew that while managing 13 servers individually was doable, it wasn&#8217;t fun, and managing several dozen machines just sounded like total nightmare.
-</p>
-
-<p>
-Which is why I thought about better ways to setup and manage the whole cluster. I ended up with a central installation server running <a href="http://fai-project.org/">FAI &#8211; Fully Automatic Installation</a>, and hosting a <a href="http://cfengine.com/community">cfengine</a> server. This way, new machines could be automatically provisioned with the operating system (Debian GNU/Linux) they needed by simply booting from their network adaptor, and new as well as existing systems could easily be maintained, configured, and updated via cfengine. No need to ever log in on a specific machine to change configuration or install software. A centralized syslog server completed the picture.
-</p>
-
-<p>
-cfengine was a major pain in the ass at times, and with Chef and Puppet there a way more sophisticated tools available today, but the overall system ran extremely well and could easily scale over time.
-</p>
-
-<p>
-Years later, the term Devops was coined, and I couldn&#8217;t help congratulating myself for getting it right so long ago.
-</p>
+<iframe src="http://www.ustream.tv/embed/recorded/21104071/highlight/251550" width="608" height="368" scrolling="no" frameborder="0" style="border: 0px none transparent;"></iframe>
 				
 			</div>
 
@@ -131,8 +110,8 @@ Years later, the term Devops was coined, and I couldn&#8217;t help congratulatin
                      <div id="disqus_thread"></div>
                      <script type="text/javascript">
                       var disqus_shortname = 'thelogbookofmanuelkiessling';
-                      var disqus_identifier = '433';
-                      var disqus_url = 'http://manuel.kiessling.net/2011/11/07/how-hosting-myhammer-started-in-a-devops-way-back-in-the-day/';
+                      var disqus_identifier = '600';
+                      var disqus_url = 'http://manuel.kiessling.net/2012/03/24/talk-php-5-4-die-wichtigsten-neuerungen-im-ueberblick/';
                       (function() {
                        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
@@ -146,10 +125,10 @@ Years later, the term Devops was coined, and I couldn&#8217;t help congratulatin
 	<!-- <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 				xmlns:dc="http://purl.org/dc/elements/1.1/"
 				xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
-			<rdf:Description rdf:about="/2011/11/07/how-hosting-myhammer-started-in-a-devops-way-back-in-the-day/"
-    dc:identifier="/2011/11/07/how-hosting-myhammer-started-in-a-devops-way-back-in-the-day/"
-    dc:title="How hosting MyHammer started in a devops way back in the day"
-    trackback:ping="/2011/11/07/how-hosting-myhammer-started-in-a-devops-way-back-in-the-day/trackback/" />
+			<rdf:Description rdf:about="/2012/03/24/talk-php-5-4-die-wichtigsten-neuerungen-im-ueberblick/"
+    dc:identifier="/2012/03/24/talk-php-5-4-die-wichtigsten-neuerungen-im-ueberblick/"
+    dc:title="Talk: PHP 5.4 &#8211; die wichtigsten Neuerungen im Überblick"
+    trackback:ping="/2012/03/24/talk-php-5-4-die-wichtigsten-neuerungen-im-ueberblick/trackback/" />
 </rdf:RDF> -->
 
 	
