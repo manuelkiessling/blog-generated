@@ -164,7 +164,12 @@ The Scalarium file we are going to substitute is located at <a href="https://git
 
 <p>
 And that&#8217;s it. As described in my previous post on this topic, we need to configure our Scalarium cloud with the information on our custom cookbook and our application, but instead of manually hooking our custom recipe into the <em>configure</em> and <em>deploy</em> events in Scalarium, our newly created deploy hook now lives in the application itself, and is automatically triggered on every deployment, and our newly created <em>web_app.conf.erb</em> Apache vhost template is automatically used by Scalarium&#8217;s Chef when setting up new PHP application server instances.
-</p>
+</p>        <div id="twitterfollow">
+          <span class="note">If you would like to be informed on updates to this post, just</span>
+          <a href="https://twitter.com/manuelkiessling" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @manuelkiessling</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </div>
+
 				
 			</div>
 
