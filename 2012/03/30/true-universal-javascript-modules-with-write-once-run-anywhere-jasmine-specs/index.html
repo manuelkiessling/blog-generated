@@ -1,0 +1,395 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>True universal JavaScript modules with write-once-run-anywhere Jasmine specs »  The Log Book of Manuel Kiessling</title>
+
+<meta name="description" content="Writings about Software Development and System Operation topics" />
+
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,800" type="text/css" />
+<link rel="stylesheet" href="../../../../wp-content/themes/wu-wei/style.css" type="text/css" />
+<link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling RSS Feed" href="../../../../feed/" />
+<link rel="alternate" type="application/atom+xml" title="The Log Book of Manuel Kiessling Atom Feed" href="../../../../feed/atom/" />
+<link rel="pingback" href="/xmlrpc.php" />
+</head>
+
+<body id="top" class="">
+
+	<div class="full-column">
+
+		<div class="center-column">
+
+			<ul id="menu">
+        <li><a href="../../../../" ><span></span><br />HOME</a></li>
+        <li><a href="../../../../projects/"><span></span><br />PROJECTS</a></li>
+				<li><a href="../../../../contact/"><span></span><br />CONTACT</a></li>
+				<li><a href="http://photographs.manuel.kiessling.net/"><span></span><br />PHOTOGRAPHS</a></li>
+				<li><a href="../../../../feed/"><span></span><br />RSS</a></li>
+				<li class="last"><a href="index.html#sidebar"><span></span><br />ABOUT</a></li>
+			</ul>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	</div>
+
+<div class="center-column">
+
+	<div id="header">
+
+		<div class="blog-name"><a href="../../../../">The Log Book of Manuel Kiessling</a></div>
+
+	</div>
+
+	
+		<div class="post-611 post hentry category-english-articles category-software category-tutorial" id="post-611">
+
+			<div class="post-info single">
+
+				<h1><a href="." rel="bookmark" title="Permanent Link to True universal JavaScript modules with write-once-run-anywhere Jasmine specs">True universal JavaScript modules with write-once-run-anywhere Jasmine specs</a></h1>
+
+        <div class="timestamp">March 30, 2012</div>
+
+        <div class="clearboth"><!-- --></div>
+
+        <div id="sharing">
+                  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://manuel.kiessling.net/2012/03/30/true-universal-javascript-modules-with-write-once-run-anywhere-jasmine-specs/" data-text="True universal JavaScript modules with write-once-run-anywhere Jasmine specs" data-via="manuelkiessling">Tweet</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+          <br />
+
+          <g:plusone size="medium" annotation="inline" width="300"></g:plusone>
+          <script type="text/javascript">
+            (function() {
+              var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+              po.src = 'https://apis.google.com/js/plusone.js';
+             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+            })();
+          </script>
+       </div>
+
+        <div class="clearboth"><!-- --></div>
+
+			</div>
+
+
+			<div class="post-content single">
+				<p>
+  As a JavaScript developer writing general-purpose libraries, you probably wish you could go fully universal, that is, you might want to create a library:
+  <ul>
+    <li>that can be used in the browser <em>and</em> in Node.js &#8211; without any hacks for either platform, and without code-duplication</li>
+    <li>that transparently utilizes AMD via RequireJS in the browser and CommonJS via <em>require</em> in Node.js &#8211; without any hacks for either platform, and without code-duplication</li>
+    <li>with a Jasmine spec suite which runs in the browser and in Node.js &#8211; without any hacks for either platform, and without code-duplication</li>
+  </ul>
+</p>
+
+<p>
+  Turns out this is perfectly possible. Consider the following library structure:
+</p>
+
+<p>
+  <code>
+      lib/
+        multiply.js
+
+      spec/
+        multiply.spec.js
+  </code>
+</p>
+
+<p>
+  As stated above: Without making use of any nasty hacks or duplicating any or all of our lib or spec code, we would like to be able to use our <em>multiply.js</em> module in a web-based browser application, or in a server-side application for Node.js &#8211; of course assuming that <em>multiply.js</em> provides a general-purpose functionality that is usable on both platforms, and not e.g. something working with a browser-DOM. In our example library, <em>multiply</em> provides a function that does the very useful job of multiplying two number, like this:
+</p>
+
+<p>
+  <code>
+    console.log(multiply(2, 5)); // outputs "10"
+  </code>
+</p>
+
+<p>
+  Furthermore, when using our lib in the browser, we would like to be able to load it using RequireJS, and when using it in a Node.js application, we would like to be able to <em>require()</em> and use it just like any other npm module:
+</p>
+
+<p>
+  <code>
+    // Browser script
+    
+    define("../lib/multiply", function(multiply) {
+      console.log(multiply(2, 5));
+    });
+  </code>
+</p>
+
+<p>
+  <code>
+    // Node.js script
+    
+    var multiply = require("../lib/multiply.js");
+
+    console.log(multiply(2, 5));
+  </code>
+</p>
+
+<p>
+  And we want our Jasmine specification <em>multiply.spec.js</em> to be able to run in a web-based Jasmine runner as well as in a Node.js based runner, enabling us to test our library on both platforms. Again, without duplicating the spec or lib code.
+</p>
+
+<p>
+All this can be achieved with the following steps:
+<ol>
+  <li>Export the lib module and its spec via RequireJS&#8217; <em>describe</em> logic</li>
+  <li>For Node.js, add the <em>amdefine</em> package to make the lib loadable via Node&#8217;s <em>require()</em></li>
+  <li>For Node.js, add the <em>jasmine-node</em> package (but no node-specific RequireJS implementation!)</li>
+  <li>For the client-side, add <em>Jasmine</em> and <em>RequireJS</em></li>
+  <li>For the client-side, write a Jasmine SpecRunner that uses RequireJS&#8217; <em>describe()</em> to load the lib and spec files for the test run</li>
+</p>
+
+<p>
+  Once this is done, the library structure will look as follows:
+</p>
+
+<p>
+  <code>
+      package.json
+
+      lib/
+        multiply.js
+
+      spec/
+        multiply.spec.js
+        run.sh
+        SpecRunner.html
+
+      vendor/
+        require.js
+
+        jasmine/
+          jasmine-html.js
+          jasmine.css
+          jasmine.js
+          jasmine_favicon.png
+          MIT.LICENSE
+  </code>
+</p>
+
+<p>
+  The <em>/package.json</em> file is the place where the <em>amdefine</em> and <em>jasmine-node</em> dependecy for the Node.js environment will be defined, <em>/spec/run.sh</em> is the Jasmine runner for the Node.js environment, <em>/spec/SpecRunner.html</em> is the Jasmine runner for the client-side environment, and <em>/vendor</em> hosts the external libraries RequireJS and Jasmine, again for the client-side environment.
+</p>
+
+<p>
+  Let&#8217;s tackle each file in turn:
+</p>
+
+<p>
+  /package.json:
+  <code>
+{
+  "name": "CafeGraph",
+  "version": "0.0.1",
+  "dependencies": {
+    "amdefine": ">=0.0.2"
+  },
+  "devDependencies": {
+    "jasmine-node": "1.0.x"
+  }
+}
+  </code>
+</p>
+
+<p>
+  This states that the npm modules <em>amdefine</em> and <em>jasmine-node</em> are needed for our lib to work in the Node.js environment. Run <code>npm install</code> to have them automatically installed.
+</p>
+
+<p>
+  /lib/multiply.js:
+  <code>
+if (typeof define !== 'function') { var define = require('amdefine')(module) }
+
+define([], function() {
+  var multiply = function(a, b) {
+    return a * b;
+  };
+  return multiply;
+});
+  </code>
+</p>
+
+<p>
+  Here, several things happen that are crucial for our library to be universal. Because the module itself is wrapped in RequireJS&#8217; <em>define()</em> function, it need some special treatment to be usable within a Node.js context. This is what the first line does, it makes sure that Node.js uses the <em>define</em> function of the <em>amdefine</em> package. This way, the module becomes usable just like any other npm package, even though RequireJS is not available.
+</p>
+
+<p>
+ The <em>return multiply;</em> statement has the same effect as <em>module.exports = multiply;</em> would have, making the <em>multiply</em> function available for Node.js scripts that do <em>var multiply = require(&#8220;../lib/multiply.js&#8221;);</em>
+</p>
+
+<p>
+  /spec/multiply.spec.js:
+  <code>
+var multiply = require("../lib/multiply.js");
+
+describe("multiply", function() {
+  it("multiplies two numbers", function() {
+    expect(multiply(2, 5)).toEqual(10);
+  });
+});
+  </code>
+</p>
+
+<p>
+  /spec/run.sh:
+  <code>
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &#038;&#038; pwd )"
+node $DIR/../node_modules/jasmine-node/lib/jasmine-node/cli.js $DIR
+  </code>
+</p>
+
+<p>
+  This just a script which enables me to run the Jasmine test suite for the Node.js environment via <em>./spec/run.sh</em> on the command line.
+  It&#8217;s probably a totally unnecessary hack, but I never really found the time to find a better solution. Recommendations welcome. Not part of our code, thus it&#8217;s acceptable for now I think.
+</p>
+
+<p>
+  /spec/SpecRunner.html:
+  <code>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Jasmine Test Runner&lt;/title&gt;
+
+    &lt;!-- Jasmine --&gt;
+    &lt;link rel="stylesheet" type="text/css" href="../vendor/jasmine/jasmine.css"/&gt;
+    &lt;script type="text/javascript" src="../vendor/jasmine/jasmine.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="../vendor/jasmine/jasmine-html.js"&gt;&lt;/script&gt;
+
+    &lt;!-- RequireJS --&gt;
+    &lt;script type="text/javascript" src="../vendor/require.js"&gt;&lt;/script&gt;
+
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;script type="text/javascript"&gt;
+      require.config({
+        baseUrl: './'
+      });
+
+      require([
+        '../lib/multiply.js',
+        '../spec/multiply.spec.js'
+      ], function() {
+        jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+        jasmine.getEnv().execute();
+      });
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+  </code>
+</p>
+
+<p>
+  The web-based Jasmine spec runner needs several modifications. The lib and spec files need to be <em>require()</em>d the RequireJS way in order to be available for the spec run. However, once this is set up, the workflow for adding new code and specs is straight-forward. For adding new specs to the Node.js spec run, no additional steps are necessary. To include new specs in the web-based spec run, simply add the implementation file and its spec to the <em>require()</em> array, and that&#8217;s it.
+</p>
+
+<p>
+  You can find the complete library code on GitHub at <a href="https://github.com/ManuelKiessling/UniversalJavaScriptModulesExample">https://github.com/ManuelKiessling/UniversalJavaScriptModulesExample</a>, with some additional usage examples.
+</p>
+
+<p>
+  <strong>tl;dr:</strong> Writing JavaScript modules that can be seamlessly included in client-side as well as server-side applications, and providing Jasmine test suites which allow to test these modules in a browser environment as well as a Node.js environment is possible without any dirty workarounds by writing these modules using the AMD pattern, and then using the <em>amdefine</em> package to make them available to Node.js.
+</p>        <div id="twitterfollow">
+          <span class="note">If you would like to be informed on updates to this post, just</span>
+          <a href="https://twitter.com/manuelkiessling" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @manuelkiessling</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </div>
+
+				
+			</div>
+
+			<div class="clearboth"><!-- --></div>
+
+		</div>
+
+	
+<!-- You can start editing here. -->
+
+<div id="comment-wrapper">
+
+                     <div id="disqus_thread"></div>
+                     <script type="text/javascript">
+                      var disqus_shortname = 'thelogbookofmanuelkiessling';
+                      var disqus_identifier = '611';
+                      var disqus_url = 'http://manuel.kiessling.net/2012/03/30/true-universal-javascript-modules-with-write-once-run-anywhere-jasmine-specs/';
+                      (function() {
+                       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                       dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                     </script>
+                     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div> <!-- end of comment-wrapper -->
+
+	<!-- <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+				xmlns:dc="http://purl.org/dc/elements/1.1/"
+				xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+			<rdf:Description rdf:about="/2012/03/30/true-universal-javascript-modules-with-write-once-run-anywhere-jasmine-specs/"
+    dc:identifier="/2012/03/30/true-universal-javascript-modules-with-write-once-run-anywhere-jasmine-specs/"
+    dc:title="True universal JavaScript modules with write-once-run-anywhere Jasmine specs"
+    trackback:ping="/2012/03/30/true-universal-javascript-modules-with-write-once-run-anywhere-jasmine-specs/trackback/" />
+</rdf:RDF> -->
+
+	
+<div>
+
+<div class="center-column-sidebar">
+
+<ul id="sidebar">
+<li id="text-3" class="widget widget_text">			<div class="textwidget"><img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=75" width="75" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
+This is the homepage and blog of Manuel Kiessling.
+<br />
+Software gardener, test driven developer in PHP, Rails and JavaScript, Agilist.
+<br />
+Author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>. Father of two. CTO at MyHammer.
+<br />
+Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
+</div>
+		</li>
+</ul>
+	<div class="clearboth"><!-- --></div>
+
+	<div id="footer">
+
+			<div class="bottom-link"><a href="index.html#top">BACK TO THE TOP</a></div>
+
+			<div class="clearboth"><!-- --></div>
+
+	</div>
+
+</div>
+
+<!-- Designed by Jeff Ngan - http://equivocality.com/wu-wei/ -->
+
+
+</div>
+</div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2127388-5']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+</html>
