@@ -7,7 +7,7 @@
 	<title type="text">The Log Book of Manuel Kiessling</title>
 	<subtitle type="text">Writings about Software Development and System Operation topics</subtitle>
 
-	<updated>2012-03-30T08:57:09Z</updated>
+	<updated>2012-04-02T14:12:56Z</updated>
 	<generator uri="http://wordpress.org/" version="2.9.2">WordPress</generator>
 
 	<link rel="alternate" type="text/html" href="/" />
@@ -15,6 +15,718 @@
 	<link rel="self" type="application/atom+xml" href="/feed/atom/" />
 
 			<entry>
+		<author>
+			<name>Manuel Kiessling</name>
+					</author>
+		<title type="html"><![CDATA[Tutorial: Developing HTML5 Canvas Games for Facebook with JavaScript &#8211; Part 1]]></title>
+		<link rel="alternate" type="text/html" href="/2012/04/02/tutorial-developing-html5-canvas-games-for-facebook-with-javascript-part-1/" />
+		<id>/?p=533</id>
+		<updated>2012-04-02T14:05:36Z</updated>
+		<published>2012-04-02T13:34:10Z</published>
+		<category scheme="/" term="English articles only" /><category scheme="/" term="Software" /><category scheme="/" term="Tutorial" />		<summary type="html"><![CDATA[Some days ago, my son asked me how computer games are made. The result is a simple yet fully-functional 2D space shooter, available on Facebook. Here's how it's done.]]></summary>
+		<content type="html" xml:base="/2012/04/02/tutorial-developing-html5-canvas-games-for-facebook-with-javascript-part-1/"><![CDATA[<p class="introduction">
+  This is a multi-part tutorial series. You are currently reading part 1.
+</p>
+
+<p>
+  Some days ago, my son asked me how computer games are made. He&#8217;s five years old and couldn&#8217;t quite imagine
+  how games are created, because <em>&#8220;you can&#8217;t just paint them like animation movies, can you?&#8221;</em>.
+</p>
+
+<p>
+  I quickly realized that explaining it to a child is really difficult. And so I decided to create a game, with him
+  as the <em>Creative Director</em> who decides what the game should be like.
+</p>
+
+<p>
+  The result is a simple yet fully-functional 2D space shooter, available on Facebook. This tutorial describes how to
+  create the game using the HTML5 canvas element and JavaScript, and how to integrate it into Facebook.
+</p>
+
+<p>
+  I never did game development before, and for me, the two major takeaways from this experience are <strong>a) JavaScript/Canvas
+  game development is much more simpler than you think</strong>, and <strong>b) Facebook integration actually is a lot of fun</strong>.
+</p>
+
+<p>
+  I mention the second point because I always greeted Facebook development with smiles, but to be honest, it&#8217;s a very pleasing
+  experience, and the whole social graph thing makes a lot of sense for games.
+</p>
+
+<p>
+  But let&#8217;s talk about game development first. As said, it was way simpler than I thought &#8211; in fact, being the old web
+  developer that I am, I always deemed it to be black art. Turned out, it&#8217;s not difficult, it&#8217;s just completely different
+  &#8211; and therefore only <em>seems</em> difficult.
+</p>
+
+<p>
+  When developing web services, you are used to think in terms of request and response, stateless connections, model-view-controller&#8230;
+  &#8211; game development takes place in a completely different context.
+</p>
+
+<p>
+  When looking at games, I always thought <em>&#8220;there is so much happening at the same time, so many objects interacting with each other
+  &#8211; how do you develop code for this without ending up with a chaotic mess?&#8221;</em>.
+</p>
+
+<p>
+  The most important thing to understand was the concept of the <strong>game loop</strong>, which lies at the heart of any
+  action game: this loop continuously cycles through two steps: <em>update</em> and <em>draw</em>.
+</p>
+
+<p>
+  And from a high-level perspective, both steps are very simple: <em>update</em> just takes every game object and asks it
+  to update its state, that is, it asks <em>&#8220;coming from your current state, what will your state be in the next iteration of
+  the game loop?&#8221;</em>. Every object takes care of its own state and how to change its state when going from one game loop cycle
+  to the next.
+</p>
+
+<p>
+  A very simple example is that of game object movement &#8211; let&#8217;s say you have a spaceship object with a
+  certain state. Whenever this object is asked to update its state, it will set its position within the game world to new values,
+  using a certain algorithm &#8211; e.g., it could have a <em>horizontal speed</em> value and a <em>vertical speed</em> value, which
+  is the number of pixels the object moves within the game world in horizontal and vertical direction during one loop cycle.
+</p>
+
+<p>
+  Thus, when the spaceship object is asked to update its state, it adds the value of its horizontal speed to its
+  horizontal position, and the value of its vertical speed to its vertical position &#8211; this is all. Because this is done
+  every game loop cycle, the result is a moving spaceship.
+</p>
+
+<p>
+  Of course, the internal state of game objects might be influenced by external events &#8211; e.g., the player&#8217;s spaceship should
+  only move if the user presses the arrow keys on his or her keyboard, and should only shoot whenever the space bar is
+  pressed. These external events are delegated to the game object and handled there.
+</p>
+
+<p>
+  A third type of update logic is that of object interactions &#8211; for our game, it&#8217;s all about object collisions: did a bullet hit an enemy?
+  Did the player&#8217;s spaceship collide with an enemy ship? The collision logic triggers certain events within the affected game objects &#8211; e.g.,
+  if the collision logic detects that an enemy is hit by a bullet from the player&#8217;s ship, it triggers the <em>beenHit()</em> method on that
+  enemy. This, in turn, is just another external event which results in the enemy object changing its internal state &#8211; e.g. triggering the explosion
+  of that enemy, or just lowering its life-points by 1; whatever the game rules are that you decide to implement.
+</p>
+
+<p>
+  The second step of every loop cycle is the <em>draw</em> step. This one is even simpler: in every loop cycle, the screen is cleared, and the
+  application cycles through every single game object and asks it to draw itself. Because objects have changed their internal state in the <em>update</em>
+  step, their position (or color, or size, or orientation) has probably changed, and they are drawn at a different position than in the previous loop cycle. This
+  results in the illusion of object movement.
+</p>
+
+<p>
+  How often does the application cycle through the <em>update-&gt;draw</em> cycle? That&#8217;s simple &#8211; if your game runs at 60 frames per second,
+  <em>update</em> and <em>draw</em> are called 60 times per second. And that is all.
+</p>
+
+<p>
+  Let&#8217;s wrap this up with some example (and pseudo) code. Let&#8217;s say we have a game world that exists of only two game objects &#8211; a spaceship and a bullet.
+</p>
+
+<p>
+  When the game starts, the spaceship is in the upper left corner of the world, and the bullet is at the very bottom of the world, at the horizontal center:
+</p>
+
+<p>
+  <code>
+ ---------------------------------------------------------
+ |                                                       |
+ |   P                                                   |
+ |                                                       |
+ |                                                       |
+ |                                                       |
+ |                                                       |
+ |                                                       |
+ |                                                       |
+ |                                                       |
+ |                           B                           |
+ ---------------------------------------------------------
+  </code>
+</p>
+
+<p>
+  Where does the &#8220;world&#8221; actually come from? We will talk about that in a moment, let&#8217;s keep the discussion abstract for now.
+</p>
+
+<p>
+  When thinking about placing and moving objects in a 2D world, you need some kind of coordinate system. Let&#8217;s say the
+  horizontal axis of our world is called <strong>x</strong> and measured from 0 (left end of the world) to 54 (right end of the world),
+  and the vertical axis is called <strong>y</strong> and measured from 0 (upper end of the world) to 9 (bottom end of the world).
+</p>
+
+<p>
+  In this system, the Player <strong>P</strong> is currently located at <strong>x: 3</strong> and <strong>y: 1</strong>, and the bullet
+  is at position <strong>x: 27, y: 9</strong>:
+</p>
+
+<p>
+  <code>
+  0123456789012345678901234567890123456789012345678901234  x →
+ ---------------------------------------------------------
+0|                                                       |
+1|   P                                                   |
+2|                                                       |
+3|                                                       |
+4|                                                       |
+5|                                                       |
+6|                                                       |
+7|                                                       |
+8|                                                       |
+9|                           B                           |
+ ---------------------------------------------------------
+
+y
+↓
+  </code>
+</p>
+
+<p>
+  These x and y coordinates are the first and most fundamental attributes that make up the current state of each game object. We will later implement
+  these as simple numerical attributes of the objects in our application that represent game objects.
+</p>
+
+<p>
+  Ok, so our game objects have a basic state represented by their position coordinates. We want our objects to move when the game is running, or in
+  our game programming lingo: we want their positional values to be altered when cycling through the update loop.
+</p>
+
+<p>
+  How could this be implemented? As said, the game update loop iterates over the list of all game objects and calls their <em>update</em> method.
+  Thus, the <em>update</em> method of the <em>Player</em> object is the place where the logic that alters the x and y value of this object should be
+  implemented. The same applies to the <em>Bullet</em> object, respectively.
+</p>
+
+<p>
+  For now, let&#8217;s ignore the fact that the player&#8217;s object should be steered by keystrokes. It just moves on it&#8217;s own using a very simple algorithm, implemented
+  in its <em>update</em> method.
+</p>
+
+<p>
+  What could this algorithm look like? Again, we keep it extremely simple for now. Let&#8217;s add two other attributes to each game object:
+  <strong>xVelocity</strong> and <strong>yVelocity</strong>. They are the parameters for our incredibly sophisticated algorithm: xVelocity is the amount
+  of pixels that the game object moves on the x-axis, and yVelocity &#8211; well, you get the idea. Here is the pseudo-code for the player object which starts at
+  position x: 3, y: 1 and moves from the upper left corner of the game world to its lower right corner, one pixel per loop cycle:
+</p>
+
+<p>
+  <code>
+Player = {
+  x: 3
+  y: 1
+  xVelocity: 1
+  yVelocity: 1
+
+  update = function() {
+    x = x + xVelocity
+    y = y + yVelocity
+  }
+}
+  </code>
+</p>
+
+<p>
+  And that&#8217;s it. The game, running at, say, 60 frames per seconds, asks the <em>Player</em> object 60 times per second to <em>update()</em> itself,
+  resulting in a player moving diagonally across the screen. That is, if we implement some draw logic:
+</p>
+
+<p>
+  <code>
+Player = {
+  x: 3
+  y: 1
+  xVelocity: 1
+  yVelocity: 1
+  symbol: 'P'
+
+  update = function() {
+    x = x + xVelocity
+    y = y + yVelocity
+  }
+
+  draw = function() {
+    drawAtPosition(x, y, symbol);
+  }
+}
+  </code>
+</p>
+
+<p>
+  After asking all game objects to update themselves, the game loop asks them to draw themselves &#8211; update-&gt;draw-&gt;update-&gt;draw-&gt;update-&gt;draw&#8230; and so on.
+</p>
+
+<p>
+  Let me give you an idea of how the final game will look like:
+</p>
+
+<p>
+<a href="/wp-content/uploads/2012/03/html5_canvas_javascript_tutorial_game_screenshot.jpg"><img src="/wp-content/uploads/2012/03/html5_canvas_javascript_tutorial_game_screenshot-300x259.jpg" alt="" title="html5 canvas javascript tutorial game screenshot" width="300" height="259" class="aligncenter size-medium wp-image-548" /></a>
+</p>
+
+<p>
+  The game world is a 740 x 640 pixel canvas. The screenshot shows 5 game objects:
+  <ul>
+    <li>
+      A terrain tile
+    </li>
+    <li>
+      The player&#8217;s spaceship
+    </li>
+    <li>
+      2 bullets shot by the player, flying upwards
+    </li>
+    <li>
+      An enemy (which is likely to be hit by the bullets in a moment)
+    </li>
+  </ul>
+</p>
+
+<p>
+  Remember, from the game loop point of view, these objects are all treated same: in every loop cycle, each one is asked to update itself, and then each one is
+  asked to draw itself. In every loop cycle, the update method of the terrain tile moves the tile one pixel downwards (resulting in a scroll effect), the player&#8217;s ship is
+  moved on the x and y axis depending on the arrow keys the player presses, the bullets simply fly upwards with the speed defined in their yVelocity attribute,
+  and the enemy ship is changing its x and y position values depending on some randomized algorithm (simply to make its movements more interesting than
+  just moving in a straight line). If the player presses the <em>space</em> key, a new bullet object is created and inserted into the game world, and if a bullet
+  objects collides with an enemy object, the enemy object and bullet object disappear (sorry, explosions do not fall within the scope of this document).
+</p>
+
+<p>
+  We will need to write quite some code for these mechanics to work, but at least the GFX part is dead simple: every game object on this screenshot is simply
+  represented with a PNG image. Thanks to PNG&#8217;s alpha transparency, it&#8217;s very simple to draw the game world by drawing the image for each game object on
+  top of each other: first the screen is cleared, then the terrain tile is drawn, then the enemy, then the bullets, then the player. The shadows of the player and
+  enemy ship are nothing special &#8211; they are simply part of the PNG with the player&#8217;s ship and enemy ship, respectively, and are transparent by using the alpha
+  channel of the images:
+</p>
+
+<p>
+  <img src="/wp-content/uploads/2012/03/player2.png" alt="" title="html5 canvas javascript tutorial spaceship" width="256" height="256" class="aligncenter size-full wp-image-555" />
+</p>
+
+<p>
+  Well then, let&#8217;s get our hands dirty, and let&#8217;s start where every journey begins: at index.html.
+</p>
+
+<p>
+  Open your favorite editor and create a simple HTML page that provides the canvas element for our game world:
+</p>
+
+<p>
+  <span class="filename beforecode">/index.html</span>
+  <code>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;&lt;/head&gt;
+
+  &lt;body&gt;
+
+    &lt;canvas id="world" width="740" height="640"&gt;
+      This browser can not run this game (canvas support missing).
+    &lt;/canvas&gt;
+
+  &lt;/body&gt;
+
+&lt;/html&gt;
+  </code>
+</p>
+
+<p>
+  Now that we talked about the game loop again and again, let&#8217;s finally create it.
+  Not surprisingly, it&#8217;s a piece of JavaScript code. As I don&#8217;t like these &#8220;let&#8217;s put
+  all our code into one single file because that&#8217;s so much simpler&#8221; tutorials, we should
+  think about where to put it. How about representing the game with an object that has the
+  update and draw cycles as methods, and starts the game loop that iterates through these
+  cycles? We could put these into a <em>Game</em> constructor, in a file named
+  <em>Game.js</em>.
+</p>
+
+<p>
+  I suggest we put this file in a <em>lib</em> subfolder, which itself
+  is a subfolder of <em>scripts</em>. This way, we keep the different concerns of our
+  application neatly separated. HTML files live at the root, all JavaScript goes into
+  <em>scripts</em>, which in turn will be separated into <em>lib</em> for the building
+  blocks of the game itself, <em>app</em> for the JavaScript files that relate to the
+  HTML files (thus, the script code for <em>/index.html</em> will be in
+  <em>/scripts/app/index.js</em>), and <em>vendor</em> for external libraries.
+</p>
+
+<p>
+  But let&#8217;s not get ahead of outselves &#8211; what we need now is the constructor for the main
+  game object:
+</p>
+
+<p>
+  <span class="filename beforecode">/scripts/lib/Game.js</span>
+  <code>
+var Game = function() {
+  this.fps = 60;
+
+  var game = this;
+  var gameloop = setInterval(function() {
+    game.updateAll();
+    game.drawAll();
+  }, 1000 / this.fps);
+}
+
+Game.prototype.updateAll = function() {
+  //
+}
+
+Game.prototype.drawAll = function() {
+  //
+}
+  </code>
+</p>
+
+<p>
+  Actually, this already creates a running game &#8211; with the minor restraint that the game world is completely empty,
+  and no action takes place.
+</p>
+
+<p>
+  Let&#8217;s quickly fill the world so we can experience the pleasure of seeing something on the screen.
+</p>
+
+<p>
+  We need at least one game object which is able to at least draw itself. We will solve this by providing a very
+  basic player.
+</p>
+
+<p>
+  The player is represented by its own object. Let&#8217;s create a constructor for it:
+</p>
+
+<p>
+  <span class="filename beforecode">/scripts/lib/Player.js</span>
+  <code>
+var Player = function(game) {
+  this.game = game;
+  this.x = 100;
+  this.y = 100;
+}
+
+Player.prototype.update = function() {
+  //
+}
+
+Player.prototype.draw = function() {
+  this.game.drawRectangle('#f00', this.x, this.y, 10, 10);
+}
+  </code>
+</p>
+
+<p>
+  Like any other game object, the player object needs an update and a draw function. These will be called by the master
+  game object on every cycle.
+</p>
+
+<p>
+  Our player doesn&#8217;t do anything yet, therefore its update method is empty, but it knows how to draw itself &#8211; by drawing
+  a red 10 x 10 pixel rectangle into the gameworld, at its current position.
+</p>
+
+<p>
+  However, we don&#8217;t want to hardwire the low level canvas drawing logic into our game objects &#8211; therefore, we pass the
+  <em>game</em> object into the player&#8217;s constructor, and call the appropriate drawing method on the game object.
+  This way, the actual drawing can be handled outside the game objects, and inside the main game object.
+</p>
+
+<p>
+  This means we need to actually pass the <em>game</em> object into our player object when we create it. This is
+  done in the <em>Game</em> constructor. Let&#8217;s also add the update and drawing calls to our player to the game loop:
+</p>
+
+<p>
+  <span class="filename beforecode">/scripts/lib/Game.js</span>
+  <code>
+var Game = function() {
+  this.fps = 60;
+<span class="addedline">  this.player = new Player(this.drawRectangle);</span>
+
+  var game = this;
+  var gameloop = setInterval(function() {
+    game.updateAll();
+    game.drawAll();
+  }, 1000 / this.fps);
+}
+
+Game.prototype.updateAll = function() {
+<span class="addedline">  this.player.update();</span>
+}
+
+Game.prototype.drawAll = function() {
+<span class="addedline">  this.player.draw();</span>
+}
+
+<span class="addedline">Game.prototype.drawRectangle = function() {
+  //
+}</span>
+  </code>
+</p>
+
+<p>
+  Well, this still won&#8217;t put any pixels on our screen, of course. We have the <em>&lt;canvas&gt;</em> element in our
+  <em>index.html</em> file, and we want to draw into it from our JavaScript code in <em>Game.js</em> &#8211; it&#8217;s time
+  to put some code into place which brings both together.
+</p>
+
+<p>
+  Technically, you don&#8217;t draw into a canvas directly. In JavaScript, you ask the canvas element for a <em>context</em>, which
+  gives you an object that provides several draw methods, like this:
+</p>
+
+<p>
+  <code>
+var context = document.getElementById('myCanvas').getContext('2d');
+
+context.fillStyle = '#f00';
+context.fillRect(5, 10, 90, 20);
+  </code>
+</p>
+
+<p>
+  This would draw a red rectangle onto the canvas element with ID <em>myCanvas</em>, with the upper left corner 5 pixels
+  from the left and 10 pixels from the top of the canvas, a width of 90 pixels, and 20 pixels high.
+</p>
+
+<p>
+  We need to get the 2D context of our <em>world</em> canvas in <em>index.html</em>, and implement the actual
+  <em>drawRectangle</em> functionality:
+</p>
+
+<p>
+  <span class="filename beforecode">/scripts/lib/Game.js</span>
+  <code>
+var Game = function() {
+  this.fps = 60;
+<span class="addedline">  var canvas = document.getElementById('world');</span>
+<span class="addedline">  this.context = canvas.getContext('2d');</span>
+  this.player = new Player(this);
+
+  var game = this;
+  var gameloop = setInterval(function() {
+    game.updateAll();
+    game.drawAll();
+  }, 1000 / this.fps);
+}
+
+Game.prototype.updateAll = function() {
+  this.player.update();
+}
+
+Game.prototype.drawAll = function() {
+  this.player.draw();
+}
+
+Game.prototype.drawRectangle = function(color, x, y, width, height) {
+<span class="addedline">  this.context.fillStyle = color;</span>
+<span class="addedline">  this.context.fillRect(x, y, width, height);</span>
+}
+  </code>
+</p>
+
+<p>
+  Now we can wire everything together in our <em>index.html</em> and see our player for the first time:
+</p>
+
+<p>
+  <span class="filename beforecode">/index.html</span>
+  <code>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+<span class="addedline">    &lt;script type="text/javascript" src="scripts/lib/Game.js"&gt;&lt;/script&gt;</span>
+<span class="addedline">    &lt;script type="text/javascript" src="scripts/lib/Player.js"&gt;&lt;/script&gt;</span>
+  &lt;/head&gt;
+
+  &lt;body&gt;
+
+    &lt;canvas id="world" width="740" height="640"&gt;
+      This browser can not run this game (canvas support missing).
+    &lt;/canvas&gt;
+
+<span class="addedline">    &lt;script type="text/javascript"&gt;
+      var game = new Game();
+    &lt;/script&gt;</span>
+
+  &lt;/body&gt;
+
+&lt;/html&gt;
+  </code>
+</p>
+
+<p>
+  Now if you open the <em>index.html</em> file in your browser, you see a red square. Isn&#8217;t it beautiful?
+</p>
+
+<p>
+  Ok, let&#8217;s add a tad of action, and make our player move across the screen:
+</p>
+
+<p>
+  <span class="filename beforecode">/scripts/lib/Player.js</span>
+  <code>
+var Player = function(game) {
+  this.game = game;
+  this.x = 100;
+  this.y = 100;
+}
+
+Player.prototype.update = function() {
+<span class="addedline">  this.x += 1;</span>
+<span class="addedline">  this.y += 1;</span>
+}
+
+Player.prototype.draw = function() {
+  this.game.drawRectangle('#f00', this.x, this.y, 10, 10);
+}
+  </code>
+</p>
+
+<p>
+  Reload and enjoy &#8211; but wait, what&#8217;s that? Instead of moving square, we see a bold red line being drawn over the screen.
+  That&#8217;s because the canvas doesn&#8217;t know about our game loop &#8211; it does not know that on every loop cycle, the screen
+  needs to be completely redrawn; it just draws everything we ask it to draw on top of each other. 
+</p>
+
+<p>
+  This can be easily fixed. At the start of each loop cycle, we will simply fill the full canvas with one large white rectangle:
+</p>
+
+<p>
+  <span class="filename beforecode">/scripts/lib/Game.js</span>
+  <code>
+var Game = function() {
+  this.fps = 60;
+  var canvas = document.getElementById('world');
+  this.context = canvas.getContext('2d');
+<span class="addedline">  this.context_width = canvas.width;</span>
+<span class="addedline">  this.context_height = canvas.height;</span>
+  this.player = new Player(this);
+
+  var game = this;
+  var gameloop = setInterval(function() {
+    game.updateAll();
+    game.drawAll();
+  }, 1000 / this.fps);
+}
+
+Game.prototype.updateAll = function() {
+  this.player.update();
+}
+
+Game.prototype.drawAll = function() {
+<span class="addedline">  this.drawRectangle('#fff', 0, 0, this.context_width, this.context_height);</span>
+  this.player.draw();
+}
+
+Game.prototype.drawRectangle = function(color, x, y, width, height) {
+  this.context.fillStyle = color;
+  this.context.fillRect(x, y, width, height);
+}
+  </code>
+</p>
+
+<p>
+  Refresh your browser, and you will see a moving red square. First achievement unlocked!
+</p>
+
+<p>
+  That&#8217;s it for today. Part 2 of this tutorial series will introduce the concept of steering our player with the arrow
+  keys, and other goodies.
+</p>
+
+<p>
+  You can browse the code of part 1 at
+  <a href="https://github.com/ManuelKiessling/HTML5CanvasJavaScriptFacebookTutorialCode/tree/part1">https://github.com/ManuelKiessling/ HTML5CanvasJavaScriptFacebookTutorialCode/tree/part1</a>.
+</p>
+]]></content>
+		<link rel="replies" type="text/html" href="/2012/04/02/tutorial-developing-html5-canvas-games-for-facebook-with-javascript-part-1/#comments" thr:count="0"/>
+		<link rel="replies" type="application/atom+xml" href="/2012/04/02/tutorial-developing-html5-canvas-games-for-facebook-with-javascript-part-1/feed/atom/" thr:count="0"/>
+		<thr:total>0</thr:total>
+	</entry>
+		<entry>
+		<author>
+			<name>Manuel Kiessling</name>
+					</author>
+		<title type="html"><![CDATA[&#8220;We need to work longer&#8221; &#8211; Why this is not what you want to say]]></title>
+		<link rel="alternate" type="text/html" href="/2012/04/02/we-need-to-work-longer-why-this-is-not-what-you-want-to-say/" />
+		<id>/?p=333</id>
+		<updated>2012-04-02T14:12:56Z</updated>
+		<published>2012-04-02T12:32:21Z</published>
+		<category scheme="/" term="Other" />		<summary type="html"><![CDATA[Every now and then, a manager at your company might say something like "We need to work longer" or "Our people need to work longer".
+Here's why I don't think it is a good idea to say this.]]></summary>
+		<content type="html" xml:base="/2012/04/02/we-need-to-work-longer-why-this-is-not-what-you-want-to-say/"><![CDATA[<p>
+Every now and then, a manager at your company might say something like &#8220;We need to work longer&#8221; or &#8220;Our people need to work longer&#8221;.
+</p>
+<p>
+Here&#8217;s why I don&#8217;t think it is a good idea to say this.
+</p>
+<p>
+Well, first of all, there may really be the need for people to change something about their work, and so the motivation and the goal of the manager might be valid and important.
+</p>
+<p>
+However, if the manager puts emphasis on people working <strong>longer</strong>, he probably won&#8217;t achieve his goal. Why? Because his <em>real</em> goal is not that people actually work longer &#8211; but he doesn&#8217;t actually know this. We’ll see why in a moment.
+</p>
+<p>
+Ok, now if you&#8217;re telling people you want them to work longer, what are you <em>really</em> telling them? You are telling them this:
+</p>
+<p>
+<blockquote>&#8220;Look, you&#8217;re working about 8 hours per day now, but I want you to work 9, 10 or 11 hours, because we need to become better. So, I&#8217;m asking you to work 3 hours more, which means I want you to do around 30% more work, which means I want us as a company to become around 30% better.&#8221;</blockquote>
+</p>
+<p>
+30%? Really? That&#8217;s the amount of how much you want us to do better? And all we have to do is stay longer, and that&#8217;s it?
+</p>
+<p>
+Let&#8217;s face it, doing about 30% better isn&#8217;t going to get you anywhere significant. And I&#8217;m not even going to start talking about why working 30% longer of course won&#8217;t bring anything significant in your company up by 30%, especially not the &#8220;doing better&#8221; &#8211; much has been written about this already.
+</p>
+<p>
+Here is what I propose: Ask your people that you want them to become <em>300%</em> better at what they do! That you want the whole company to become 300% better than it is right now. And don&#8217;t even mention working longer.
+</p>
+<p>
+Because if you tell people <em>this</em>, then everybody is going to understand that this goal won&#8217;t be achieved by working 300% <em>longer</em>, because 8 x 3 is 24, and for obvious reasons this is not going to work out.
+</p>
+<p>
+You should probably even go this far as to tell your people you want them to achieve the 300% goal by actually working normal 8 hour workdays &#8211; as a new, strict rule! Now this is an interesting challenge for intelligent people, isn&#8217;t it?
+</p>
+<p>
+Because then they are forced to contemplate about how <em>well</em> they will need to work, and not how <em>much</em> they will need to work, because that is going to be the only way to achieve the goal.
+</p>
+<p>
+At the end of the day, what you want is people to <em>change</em>, and that is the hardest thing of all. Maybe the only thing people hate even more than change is being critizised. Which is why it isn&#8217;t such a good idea to start with a negative connotation if you want people to change.
+</p>
+<p>
+Why does asking people to work longer have a negative connotation? Because it sounds like a punishment. It sounds like &#8220;we haven&#8217;t been doing well, and as a result, we need to stay longer&#8221;. Well, at least in Germany, &#8220;staying longer&#8221; is <em>exactly</em> the kind of punishment we all have actually been raised with in school (it is called &#8220;Nachsitzen&#8221;).
+</p>
+<p>
+Here is another point of view: What you actually want is people to become worthier for your company, that they create more value, right? Well, it seems obvious to me that some people in companies seem to already have partly achieved this goal, because they get paid a lot more than others. Which basically means that they create more value for the company (which is or at least should be the only valid reason they get paid more, right)?
+</p>
+<p>
+So, let&#8217;s say you have some Juniors and some Seniors in your company, and the Seniors get paid twice the money compared to the Juniors.
+</p>
+<p>
+How did the Seniors get there? Was it something like this?
+<ul>
+<li>As a Junior, they worked 5 hours</li>
+<li>As a Regular, they worked 7 hours</li>
+<li>As a Senior, they now work 10 hours</li>
+</ul>
+Well, I guess we can agree that this is not how this kind of stuff works.
+</p>
+<p>
+But then what&#8217;s happening here? Why is it ok to pay them more? Well, those people don&#8217;t work <em>longer</em>, they work <em>better</em>. So, if <em>this</em> is what enables people to create more value for the company, then why would you want to put the focus on working <em>longer</em>?
+</p>
+<p>
+The conclusion: Don&#8217;t ask people to work longer. Instead, think really hard about how to create an environment which allows people to work <em>a lot better</em> than they do today, and put a lot of effort into implementing this environment.
+</p>
+<p>
+This of course is a lot harder than just asking them to work longer &#8211; but this is a very good sign that it is going to achieve you a lot more.
+</p>
+]]></content>
+		<link rel="replies" type="text/html" href="/2012/04/02/we-need-to-work-longer-why-this-is-not-what-you-want-to-say/#comments" thr:count="0"/>
+		<link rel="replies" type="application/atom+xml" href="/2012/04/02/we-need-to-work-longer-why-this-is-not-what-you-want-to-say/feed/atom/" thr:count="0"/>
+		<thr:total>0</thr:total>
+	</entry>
+		<entry>
 		<author>
 			<name>Manuel Kiessling</name>
 					</author>
