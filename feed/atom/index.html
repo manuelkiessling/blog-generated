@@ -7,7 +7,7 @@
 	<title type="text">The Log Book of Manuel Kiessling</title>
 	<subtitle type="text">Writings about Software Development and System Operation topics</subtitle>
 
-	<updated>2012-04-03T18:13:38Z</updated>
+	<updated>2012-04-07T06:54:00Z</updated>
 	<generator uri="http://wordpress.org/" version="2.9.2">WordPress</generator>
 
 	<link rel="alternate" type="text/html" href="/" />
@@ -21,7 +21,7 @@
 		<title type="html"><![CDATA[Tutorial: Developing HTML5 Canvas Games for Facebook with JavaScript &#8211; Part 1]]></title>
 		<link rel="alternate" type="text/html" href="/2012/04/02/tutorial-developing-html5-canvas-games-for-facebook-with-javascript-part-1/" />
 		<id>/?p=533</id>
-		<updated>2012-04-02T14:05:36Z</updated>
+		<updated>2012-04-07T06:54:00Z</updated>
 		<published>2012-04-02T13:34:10Z</published>
 		<category scheme="/" term="English articles only" /><category scheme="/" term="Software" /><category scheme="/" term="Tutorial" />		<summary type="html"><![CDATA[Some days ago, my son asked me how computer games are made. The result is a simple yet fully-functional 2D space shooter, available on Facebook. Here's how it's done.]]></summary>
 		<content type="html" xml:base="/2012/04/02/tutorial-developing-html5-canvas-games-for-facebook-with-javascript-part-1/"><![CDATA[<p class="introduction">
@@ -440,7 +440,7 @@ Player.prototype.draw = function() {
   <code>
 var Game = function() {
   this.fps = 60;
-<span class="addedline">  this.player = new Player(this.drawRectangle);</span>
+<span class="addedline">  this.player = new Player(this);</span>
 
   var game = this;
   var gameloop = setInterval(function() {

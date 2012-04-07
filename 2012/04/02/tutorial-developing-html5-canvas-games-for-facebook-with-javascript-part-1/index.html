@@ -493,7 +493,7 @@ Player.prototype.draw = function() {
   <code>
 var Game = function() {
   this.fps = 60;
-<span class="addedline">  this.player = new Player(this.drawRectangle);</span>
+<span class="addedline">  this.player = new Player(this);</span>
 
   var game = this;
   var gameloop = setInterval(function() {
