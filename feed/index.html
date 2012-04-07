@@ -13,7 +13,7 @@
 	<atom:link href="/feed/" rel="self" type="application/rss+xml" />
 	<link>/</link>
 	<description>Writings about Software Development and System Operation topics</description>
-	<lastBuildDate>Mon, 02 Apr 2012 14:12:56 +0000</lastBuildDate>
+	<lastBuildDate>Tue, 03 Apr 2012 18:13:38 +0000</lastBuildDate>
 	<generator>http://wordpress.org/?v=2.9.2</generator>
 	<language>de</language>
 	<sy:updatePeriod>hourly</sy:updatePeriod>
@@ -726,7 +726,10 @@ The conclusion: Don&#8217;t ask people to work longer. Instead, think really har
 <p>
 This of course is a lot harder than just asking them to work longer &#8211; but this is a very good sign that it is going to achieve you a lot more.
 </p>
-]]></content:encoded>
+
+<p>
+  <em>Manuel Kiessling is currently working at <a href="http://news.myhammer.de/unternehmen/jobs">MyHammer AG</a>, a company that puts a lot of effort into continuously improving by 300%.</em>
+</p>]]></content:encoded>
 			<wfw:commentRss>/2012/04/02/we-need-to-work-longer-why-this-is-not-what-you-want-to-say/feed/</wfw:commentRss>
 		<slash:comments>0</slash:comments>
 		</item>
@@ -807,10 +810,10 @@ This of course is a lot harder than just asking them to work longer &#8211; but 
 All this can be achieved with the following steps:
 <ol>
   <li>Export the lib module and its spec via RequireJS&#8217; <em>describe</em> logic</li>
-  <li>For Node.js, add the <em>amdefine</em> package to make the lib loadable via Node&#8217;s <em>require()</em></li>
+  <li>For Node.js, add the <em>amdefine</em> package to make the lib and its spec loadable via Node&#8217;s <em>require()</em></li>
   <li>For Node.js, add the <em>jasmine-node</em> package (but no node-specific RequireJS implementation!)</li>
   <li>For the client-side, add <em>Jasmine</em> and <em>RequireJS</em></li>
-  <li>For the client-side, write a Jasmine SpecRunner that uses RequireJS&#8217; <em>describe()</em> to load the lib and spec files for the test run</li>
+  <li>For the client-side, write a Jasmine SpecRunner that uses RequireJS&#8217; <em>describe()</em> to load the spec files for the test run</li>
 </p>
 
 <p>
@@ -894,11 +897,13 @@ define([], function() {
 <p>
   /spec/multiply.spec.js:
   <code>
-var multiply = require("../lib/multiply.js");
+if (typeof define !== 'function') { var define = require('amdefine')(module) }
 
-describe("multiply", function() {
-  it("multiplies two numbers", function() {
-    expect(multiply(2, 5)).toEqual(10);
+define(["../lib/multiply.js"], function(multiply) {
+  describe("multiply", function() {
+    it("multiplies two numbers", function() {
+      expect(multiply(2, 5)).toEqual(10);
+    });
   });
 });
   </code>
@@ -943,7 +948,6 @@ node $DIR/../node_modules/jasmine-node/lib/jasmine-node/cli.js $DIR
       });
 
       require([
-        '../lib/multiply.js',
         '../spec/multiply.spec.js'
       ], function() {
         jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
@@ -956,7 +960,7 @@ node $DIR/../node_modules/jasmine-node/lib/jasmine-node/cli.js $DIR
 </p>
 
 <p>
-  The web-based Jasmine spec runner needs several modifications. The lib and spec files need to be <em>require()</em>d the RequireJS way in order to be available for the spec run. However, once this is set up, the workflow for adding new code and specs is straight-forward. For adding new specs to the Node.js spec run, no additional steps are necessary. To include new specs in the web-based spec run, simply add the implementation file and its spec to the <em>require()</em> array, and that&#8217;s it.
+  The web-based Jasmine spec runner needs several modifications, because the spec files need to be <em>require()</em>d the RequireJS way. However, once this is set up, the workflow for adding new code and specs is straight-forward. For adding new specs to the Node.js spec run, no additional steps are necessary. To include new specs in the web-based spec run, simply add the path to the spec file to the <em>require()</em> array, and that&#8217;s it.
 </p>
 
 <p>
