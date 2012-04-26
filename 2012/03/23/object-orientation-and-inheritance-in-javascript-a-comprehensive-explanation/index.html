@@ -351,8 +351,9 @@ Car.prototype.honk = function() {
 
 var myCar = new Car();
 
-myCar.honk();
-myCar.drive();</code>
+myCar.honk()  // outputs "honk honk"
+myCar.drive()  // outputs "vrooom..."
+</code>
 <p>In JavaScript, inheritance runs through a chain of prototypes.</p>
 <p>The prototype of the <em>Car</em> constructor is set to a newly created <em>vehicle</em> object, which establishes the link structure that allows the interpreter to look for methods in parent objects.</p>
 <p>The prototype of the <em>Vehicle</em> constructor has a function <em>drive</em>. Here is what happens when the <em>myCar</em> object is asked to <em>drive()</em>:</p>
@@ -364,8 +365,89 @@ myCar.drive();</code>
 <li>When looking at <em>Vehicle.prototype</em>, the interpreter sees an object which has a <em>drive</em> function attached - the interpreter now knows which code implements the <em>myCar.drive()</em> behaviour, and executes it</li>
 </ul>
 
-<p>
-        <div id="twitterfollow">
+<h2>A classless society, revisited</h2>
+
+<p>We just learned how to emulate traditional (or classical) inheritance in JavaScript. This understanding is needed to successfully unlearn it and leave it behind, in order to embrace the idea that in JavaScript, you really don't need classes at all, and you therefore don't need to emulate them - plus, that's really a lot of code to express the prototypical idea of <em>"go look at that other object over there, it has the code you are looking for"</em>, isn't it?</p>
+
+<p>It was Douglas Crockford who came up with a very clever solution, which allows to let objects directly inherit from each other, without the need for all the boilerplate code presented in the previous example. The solution is a native part of JavaScript by now - it's the <em>Object.create()</em> function, and it works like this:
+</p>
+
+<code>Object.create = function(o) {
+  function F() {}
+  F.prototype = o;
+  return new F();
+};
+</code>
+
+<p>We learned enough now to understand what's going on. Let's analyze an example:
+</p>
+
+<code>var vehicle = {};
+vehicle.drive = function () {
+  console.log("vrooom...");
+}
+
+var car = Object.create(vehicle);
+car.honk = function() {
+  console.log("honk honk");
+}
+
+var myCar = Object.create(car);
+
+myCar.honk()  // outputs "honk honk"
+myCar.drive()  // outputs "vrooom..."
+</code>
+
+<p>While being significantly more concise and expressive, this code achieves exactly the same behaviour, without the need to write dedicated constructors and attaching functions to their prototype. As you can see, <em>Object.create()</em> handles both behind the scenes, on the fly. A temporary constructor is created, its prototype is set to the object that serves as the role model for our new object, and a new object is created from this setup.
+</p>
+
+<p>Conceptually, this is really the same as in the previous example where we defined that <em>Car.prototype</em> shall be <em>new Vehicle();</em>.
+</p>
+
+<p>But wait! We created the functions <em>drive</em> and <em>honk</em> within our objects, not on their prototypes - that's memory-inefficient!
+</p>
+
+<p>Well, in this case, it's actually not. Let's see why:
+</p>
+
+<code>var vehicle = {};
+vehicle.drive = function () {
+  console.log("vrooom...");
+}
+
+var car = Object.create(vehicle);
+car.honk = function() {
+  console.log("honk honk");
+}
+
+var myVehicle = Object.create(vehicle);
+var myCar1 = Object.create(car);
+var myCar2 = Object.create(car);
+
+myCar1.honk()  // outputs "honk honk"
+myCar2.honk()  // outputs "honk honk"
+
+myVehicle.drive()  // outputs "vrooom..."
+myCar1.drive()     // outputs "vrooom..."
+myCar2.drive()     // outputs "vrooom..."
+</code>
+
+<p>We have now created a total of 5 objects, but how often do the <em>honk</em> and <em>drive</em> methods exist in memory? Well, how often have they been defined? Just once - and therefore, this solution is basically as efficient as the one where we built the inheritance manually. Let's look at the numbers:
+</p>
+
+<code>c = {};
+c.f = function(foo) {
+  console.log(foo);
+}
+
+var a = [];
+for (var i = 0; i < 1000000; i++) {
+  a.push(Object.create(c));
+}
+</code>
+
+<p>Turns out, it's not exactly identical - we end up with a heap snapshot size of 40 MB, thus there seems to be <em>some</em> overhead involved. However, in exchange for much better code, this is probably more than worth it.
+</p>        <div id="twitterfollow">
           <span class="note">If you would like to be informed on updates to this post, just</span>
           <a href="https://twitter.com/manuelkiessling" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @manuelkiessling</a>
           <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
