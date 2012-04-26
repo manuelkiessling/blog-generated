@@ -13,7 +13,7 @@
 	<atom:link href="/feed/" rel="self" type="application/rss+xml" />
 	<link>/</link>
 	<description>Writings about Software Development and System Operation topics</description>
-	<lastBuildDate>Sat, 07 Apr 2012 06:54:00 +0000</lastBuildDate>
+	<lastBuildDate>Thu, 26 Apr 2012 03:15:43 +0000</lastBuildDate>
 	<generator>http://wordpress.org/?v=2.9.2</generator>
 	<language>de</language>
 	<sy:updatePeriod>hourly</sy:updatePeriod>
@@ -1000,7 +1000,9 @@ node $DIR/../node_modules/jasmine-node/lib/jasmine-node/cli.js $DIR
 		<comments>/2012/03/23/object-orientation-and-inheritance-in-javascript-a-comprehensive-explanation/#comments</comments>
 		<pubDate>Fri, 23 Mar 2012 09:43:26 +0000</pubDate>
 		<dc:creator>Manuel Kiessling</dc:creator>
-				<category><![CDATA[Other]]></category>
+				<category><![CDATA[English articles only]]></category>
+		<category><![CDATA[Software]]></category>
+		<category><![CDATA[Tutorial]]></category>
 
 		<guid isPermaLink="false">/?p=568</guid>
 		<description><![CDATA[<p>
@@ -1202,9 +1204,43 @@ myCar2.honk(); // executes myCar2.honk() and outputs &quot;meep meep&quot;</code
 <p>It&#8217;s important to understand what happens behind the scenes in this example. As we have seen, when calling a function on an object, the interpreter follows a certain path to find the actual location of that function.</p>
 <p>While for <em>myCar1</em>, there still is no <em>honk</em> function within that object itself, that no longer holds true for <em>myCar2</em>. When the interpreter calls <em>myCar2.honk</em>, there now is a function within <em>myCar2</em> itself. Therefore, the interpreter no longer follows the path to the prototype of <em>myCar2</em>, and executes the function within <em>myCar2</em> instead.</p>
 <p>That&#8217;s one of the major differences to class-based programming: while objects are relatively &quot;rigid&quot; e.g. in Java, where the structure of an object cannot be changed at runtime, in JavaScript, the prototype-based approach links objects of a certain class more loosely together, which allows to change the structure of objects at any time.</p>
+
+<p>Also, note how sharing functions through the constructor&#8217;s prototype is way more efficient than creating objects that all carry their own functions, even if they are identical. As previously stated, the engine doesn&#8217;t know that these functions are meant to be identical, and it has to allocate memory for every function in every object. This is no longer true when sharing functions through a common prototype &#8211; the function in question is placed in memory exactly once, and no matter how many <em>myCar</em> objects you create, they don&#8217;t carry the function themselves, they only refer to their constructor, in whose prototype the function is found.</p>
+
+<p>To give you an idea of what this difference can mean, here is a very simple comparison. The first example creates 1,000,000 objects that all have the function directly attached to them:
+</p>
+
+<code>var C = function() {
+  this.f = function(foo) {
+    console.log(foo);
+  }
+}
+
+var a = [];
+for (var i = 0; i < 1000000; i++) {
+  a.push(new C());
+}
+</code>
+
+<p>In Google Chrome, this results in a heap snapshot size of 328 MB. Here is the same example, but now the function is shared through the constructor's prototype:</p>
+
+<code>var C = function() {}
+
+C.prototype.f = function(foo) {
+  console.log(foo);
+}
+
+var a = [];
+for (var i = 0; i < 1000000; i++) {
+  a.push(new C());
+}
+</code>
+
+<p>This time, the size of the heap snapshot is only 17 MB, i.e., only about 5% of the non-efficient solution.</p>
+
 <h2 id="object-orientation-prototyping-and-inheritance">Object-orientation, prototyping, and inheritance</h2>
-<p>So far, we haven&#8217;t talked about inheritance in JavaScript, so let&#8217;s do this now.</p>
-<p>It&#8217;s useful to share behaviour between a certain class of objects, but there are cases where we would like to share behaviour between different, but similar classes of objects.</p>
+<p>So far, we haven't talked about inheritance in JavaScript, so let's do this now.</p>
+<p>It's useful to share behaviour between a certain class of objects, but there are cases where we would like to share behaviour between different, but similar classes of objects.</p>
 <p>Imagine our virtual world not only had cars, but also bikes. Both drive, but where a car has a horn, a bike has a bell.</p>
 <p>Being able to <em>drive</em> makes both objects <em>vehicles</em>, but not sharing the <em>honk</em> and <em>ring</em> distinguishes them.</p>
 <p>We could illustrate their shared and local behaviour as well as their relationship to each other as follows:</p>
@@ -1219,8 +1255,8 @@ Car                 Bike
 &gt; honk              &gt; ring</code>
 <p>Designing this relationship in a class-based language like Java is straightforward: We would define a class <em>Vehicle</em> with a method <em>drive</em>, and two classes <em>Car</em> and <em>Bike</em> which both <em>extend</em> the <em>Vehicle</em> class, and implement a <em>honk</em> and a <em>ring</em> class, respectively.</p>
 <p>This would make the car as well as bike objects inherit the drive behaviour through the inheritance of their classes.</p>
-<p>How does this work in JavaScript, where we don&#8217;t have classes, but prototypes?</p>
-<p>Let&#8217;s look at an example first, and then dissect it. To keep the code short for now, let&#8217;s only start with a car that inherits from a vehicle:</p>
+<p>How does this work in JavaScript, where we don't have classes, but prototypes?</p>
+<p>Let's look at an example first, and then dissect it. To keep the code short for now, let's only start with a car that inherits from a vehicle:</p>
 <code>function Vehicle() {}
 
 Vehicle.prototype.drive = function () {
@@ -1249,8 +1285,11 @@ myCar.drive();</code>
 <li>The interpreter then asks the <em>myCar</em> object for its prototype, which is the prototype of its constructor <em>Car</em></li>
 <li>When looking at <em>Car.prototype</em>, the interpreter sees a <em>vehicle</em> object which has a function <em>honk</em> attached, but no <em>drive</em> function</li>
 <li>Thus, the interpreter now asks this <em>vehicle</em> object for its prototype, which is the prototype of its constructor <em>Vehicle</em></li>
-<li>When looking at <em>Vehicle.prototype</em>, the interpreter sees an object which has a <em>drive</em> function attached &#8211; the interpreter now knows which code implements the <em>myCar.drive()</em> behaviour, and executes it</li>
-</ul>]]></content:encoded>
+<li>When looking at <em>Vehicle.prototype</em>, the interpreter sees an object which has a <em>drive</em> function attached - the interpreter now knows which code implements the <em>myCar.drive()</em> behaviour, and executes it</li>
+</ul>
+
+<p>
+]]></content:encoded>
 			<wfw:commentRss>/2012/03/23/object-orientation-and-inheritance-in-javascript-a-comprehensive-explanation/feed/</wfw:commentRss>
 		<slash:comments>0</slash:comments>
 		</item>
