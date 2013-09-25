@@ -298,7 +298,7 @@ for (var i = 0; i < 1000000; i++) {
 
 Car                 Bike
 &gt; honk              &gt; ring</code>
-<p>Designing this relationship in a class-based language like Java is straightforward: We would define a class <em>Vehicle</em> with a method <em>drive</em>, and two classes <em>Car</em> and <em>Bike</em> which both <em>extend</em> the <em>Vehicle</em> class, and implement a <em>honk</em> and a <em>ring</em> class, respectively.</p>
+<p>Designing this relationship in a class-based language like Java is straightforward: We would define a class <em>Vehicle</em> with a method <em>drive</em>, and two classes <em>Car</em> and <em>Bike</em> which both <em>extend</em> the <em>Vehicle</em> class, and implement a <em>honk</em> and a <em>ring</em> method, respectively.</p>
 <p>This would make the car as well as bike objects inherit the drive behaviour through the inheritance of their classes.</p>
 <p>How does this work in JavaScript, where we don't have classes, but prototypes?</p>
 <p>Let's look at an example first, and then dissect it. To keep the code short for now, let's only start with a car that inherits from a vehicle:</p>

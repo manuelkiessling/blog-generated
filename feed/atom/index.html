@@ -7,7 +7,7 @@
 	<title type="text">The Log Book of Manuel Kiessling</title>
 	<subtitle type="text">Writings about agile software development and system operation topics</subtitle>
 
-	<updated>2012-09-28T21:37:11Z</updated>
+	<updated>2013-09-25T19:12:09Z</updated>
 	<generator uri="http://wordpress.org/" version="2.9.2">WordPress</generator>
 
 	<link rel="alternate" type="text/html" href="/" />
@@ -18,10 +18,261 @@
 		<author>
 			<name>Manuel Kiessling</name>
 					</author>
+		<title type="html"><![CDATA[Converting a running physical machine to a KVM virtual machine]]></title>
+		<link rel="alternate" type="text/html" href="/2013/03/19/converting-a-running-physical-machine-to-a-kvm-virtual-machine/" />
+		<id>/?p=759</id>
+		<updated>2013-03-21T20:02:44Z</updated>
+		<published>2013-03-19T17:40:48Z</published>
+		<category scheme="/" term="English articles only" /><category scheme="/" term="Software" /><category scheme="/" term="Tutorial" />		<summary type="html"><![CDATA[Let's assume you have a physical machine running a Linux system, and you would like to convert this system into a virtual KVM/QEMU machine, keeping everything as close to the original as possible. What follows is my approach.]]></summary>
+		<content type="html" xml:base="/2013/03/19/converting-a-running-physical-machine-to-a-kvm-virtual-machine/"><![CDATA[<p>
+Let&#8217;s assume you have a physical machine running a Linux system, and you would like to convert this system into a virtual KVM/QEMU machine, keeping everything as close to the original as possible. What follows is my approach.
+</p>
+
+<p>
+The first thing we need is a raw image file which mirrors the exact layout of the physical hard drive in our physical server.
+</p>
+
+<p>
+In our example scenario, the physical box has one hard drive at <em>/dev/sda</em> with a <em>/boot</em> Partition on <em>/dev/sda2</em> and a physical LVM volume on <em>/dev/sda3</em>. This LVM volume houses a volume group with two logical volumes, one of them housing the root partition <em>/</em>, and the other one being unused. Also, <em>/dev/sda1</em> is unused. Grub is installed into the Master Boot Record.
+</p>
+
+<p>
+(While this setup may sound like it doesn&#8217;t make too much sense, trust me that I encountered this very setup the other day. The good news is that it&#8217;s an excellent example case because it is quite complicated, which gives me the chance to explain a lot of different concepts and solutions in detail.)
+</p>
+
+<p>
+We need to recreate this hard drive in the virtual world. If we could stop the server, this would actually be quite simple: shutdown the machine, boot from a linux rescue cd, and <em>dd</em> every single byte from <dev>/dev/sda</em> into a raw image file. This might even work when done from a running system where the disk is mounted, at least to a certain degree. But if you want to learn about all the little details that make up hard drive partitions and their file system, then continue reading.
+</p>
+
+<p>
+Let&#8217;s look at the layout of the physical disk with <em>fdisk -ul /dev/sda</em>:
+</p>
+
+<code>Disk /dev/sda: 299.4 GB, 299439751168 bytes
+255 heads, 63 sectors/track, 36404 cylinders, total 584843264 sectors
+Units = sectors of 1 * 512 = 512 bytes
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1   *          63     1012094      506016    b  W95 FAT32
+/dev/sda2         1012095     1220939      104422+  83  Linux
+/dev/sda3         1220940   584830259   291804660   8e  Linux LVM</code>
+
+<p>
+Next, we need to switch to our KVM host server and create a raw image file that is exactly the same size as the physical hard drive (which, according to the first line of fdisk&#8217;s output, is 299.4 GB, or 299439751168 bytes):
+</p>
+
+<code># qemu-img create image.raw 299439751168</code>
+
+<p>
+We could now re-create the partitioning scheme of the physical disk on the image by hand, but there is a simple shortcut: we only need to write the first 512 bytes of the physical disk into the first 512 bytes of the image. That&#8217;s the Master Boot Record (MBR) where all partitioning information resides.
+</p>
+
+<p>
+<em>dd</em> is the tool of choice for reading and writing raw bytes. We use the following to read the MBR from our physical disk: 
+</p>
+
+<code># dd if=/dev/sda of=./mbr.bin bs=512 count=1</code>
+
+<p>
+It will write exactly one 512 byte block into a file called mbr.bin. Transfer this file to your KVM host, then write its content into the image file:
+</p>
+
+<code># dd if=./mbr.bin of=./image.raw bs=512 count=1 conv=notrunc</code>
+
+<p>
+This writes exactly one block of 512 bytes into the image, and does not truncate the rest of the image.
+</p>
+
+<p>
+Now run
+</p>
+
+<code># fdisk -l image.raw</code>
+
+<p>
+to verify that the image file now has a partition layout which mirrors that of the physical disk:
+</p>
+
+<code>    Device Boot      Start         End      Blocks   Id  System
+image.raw1   *          63     1012094      506016    b  W95 FAT32
+image.raw2         1012095     1220939      104422+  83  Linux
+image.raw3         1220940   584830259   291804660   8e  Linux LVM</code>
+
+<p>
+Now we can start to create filesystems on our imagefile&#8217;s partitions. But to create file systems, we need to address these partitions as devices. <em>losetup</em> comes to the rescue, because it allows us to present parts of a raw image file to the host system as loopback devices.
+</p>
+
+<p>
+We need to create two loopback devices, one for the <em>sda2</em> partition (<em>/boot</em> on our physical system), and one for the <em>sda3</em> partition, which is a physical LVM volume. Afterwards, we will be able to use the <em>sda2</em> loopback device directly &#8211; because of LVM, <em>sda3</em> needs some extra care, as we will see.
+</p>
+
+<p>
+Here is how we create a loopback device <em>/dev/loop0</em> which points at the section of <em>image.raw</em> that makes up the <em>sda2</em> partition:
+</p>
+
+<code># losetup /dev/loop0 image.raw -o 518192640 --sizelimit 106928128</code>
+
+<p>
+You probably wonder where those insane numbers come from. It&#8217;s actually quite simple: The image file is, of course, just one continuous stream of bytes. A certain range of bytes within this stream represents the <em>sda2</em> partition we just created on the image file. We don&#8217;t want the loopback device to point at the whole image file, but rather on the <em>sda2</em> section only. And this section starts at byte 518192640 (the offset) and ends 106928128 bytes later (the sizelimit). How do we know? This is the calculation:
+</p>
+
+<code>offset = partition start block * 512
+sizelimit = (partition end block - partition start block) * 512</code>
+
+<p>
+See the output of <em>fdisk -l image.raw</em> above for the partition start and end block numbers.
+</p>
+
+<p>
+We now have a loopback device <em>/dev/loop0</em> that looks and feels just like a real physical device &#8211; in this case, a hard disk partition. As this, it can be formatted:
+</p>
+
+<code># mkfs.ext3 /dev/loop0</code>
+
+<p>
+Great, so now we have the <em>/boot</em> partition of our virtual server available, with the same layout as on our physical server. Let&#8217;s tackle the LVM volume on <em>/dev/sda3</em> next.
+</p>
+
+<p>
+What we need is the LVM header from our physical server&#8217;s disk. Again, <em>dd</em> is the tool of choice:
+</p>
+
+<code># dd if=/dev/sda3 of=lvmheader.bin bs=512 count=24</code>
+
+<p>
+This writes the first 24 blocks of 512 bytes into the file <em>lvmheader.bin</em>. It&#8217;s the part if partition <em>sda3</em> where the layout of the LVM setup is described. Just like the MBR, this needs to be transferred to our KVM host and must be written to the right place within our raw image file.
+</p>
+
+<p>
+To do so, we will create another loopback device, <em>/dev/loop1</em>, which points at the byte section for the <em>sda3</em> partition within our image file:
+</p>
+
+<code># losetup /dev/loop0 image.raw -o 625121280 --sizelimit 298807971328</code>
+
+<p>
+The numbers were calculated accordingly, of course.
+</p>
+
+<p>
+Now we can write the LVM header:
+</p>
+
+<code># dd if=lvmheader.bin of=/dev/loop1 bs=512 count=24 conv=notrunc</code>
+
+<p>
+Afterwards, you can run
+</p>
+
+<code># pvs</code>
+
+which should display the newly found LVM volume group:
+
+<code>  PV         VG         Fmt  Attr PSize   PFree
+  /dev/loop0 VolGroup00 lvm2 a-   278.28g    0</code>
+
+<p>
+Run
+</p>
+
+<code># lvm vgchange -ay</code>
+
+<p>
+to activate it. Now, when running
+</p>
+
+<code># lvm lvs</code>
+
+<p>
+its volumes should be listed like this:
+</p>
+
+<code>  LV       VG         Attr   LSize   Origin Snap%  Move Log Copy%  Convert
+  LogVol00 VolGroup00 -wi-a- 268.53g                                      
+  LogVol01 VolGroup00 -wi-a-   9.75g</code>
+
+<p>
+At this point, the logical volume that will house the root partition can be accessed, and therefore we can format it:
+</p>
+
+<code># mkfs.ext3 /dev/mapper/VolGroup00-LogVol00</code>
+
+<p>
+With this, we reached the point where we can mount the root and the <em>/boot</em> partition from the image on our KVM host:
+</p>
+
+<code># mount /dev/mapper/VolGroup00-LogVol00 /mnt
+# mkdir /mnt/boot
+# mount /dev/loop0 /mnt/boot</code>
+
+<p>
+Next, we can copy over all the files from our physical server to the mounted image partitions on the KVM host. This could be done using rsync, for example:
+</p>
+
+<code># rsync -aAXvP / your.kvm.host:/mnt/ \
+--delete \
+--exclude={/dev/*,/proc/*,/sys/*,/tmp/*,/run/*,/mnt/*,/media/*,/lost+found,/home/*/.gvfs}</code>
+
+<p>
+The nice here is that you can transfer the files on-the-fly from the running system. Of course, at one point you need to make a &#8220;last sync&#8221; just before the virtual machine replaces the physical machine. However, you can transfer most of the data beforehand, and when the moment comes, you can shut down all services like databases, crond etc. and do the last sync in a relatively short time window.
+</p>
+
+<p>
+Once this is done, we have a working, bootable KVM raw image. We could now unmount the partitions and import the image as a new virtual machine, like so:
+</p>
+
+<code># virt-install \
+ -n mymachine \
+ -r 512 \
+ --os-variant rhel5.4 \
+ --disk /var/lib/libvirt/images/image.raw,device=disk,bus=virtio,cache=none \
+ --nonetworks \
+ --graphics vnc,listen=0.0.0.0,port=5910 \
+ --import \
+ --prompt
+</code>
+
+<p>
+In case the VM does <em>not</em> boot, one reason could be that its <em>initrd</em> does not have the <em>virtio</em> drivers and thus cannot access the virtual drive. In this case, you must build a new <em>initrd</em> as follows:
+</p>
+
+<p>If you still have the partitions mounted, bind the raw image file itself into the mounted filesystem, like so:</p>
+
+<code># mkdir /mnt/images
+# mount --bind /var/lib/libvirt/images/image.raw /mnt/images</code>
+
+<p>
+Now, chroot into your VM&#8217;s root partition:
+</p>
+
+<code># chroot /mnt</code>
+
+<p>In there you must mount the <em>/proc</em> pseudo-filesystem, remove your current <em>initrd</em> image, and build a new one with the <em>virtio</em> drivers included:
+
+<code># mount -t proc none /proc
+# rm /boot/initrd.img
+# mkinitrd --with virtio_pci --with virtio_blk /boot/initrd.img the.kernel.version
+# umount /proc
+# exit</code>
+
+<p>
+Don&#8217;t forget to unmount everything afterwards:
+</p>
+
+<code># umount /mnt/boot
+# umount /mnt/images
+# umount /mnt</code>]]></content>
+		<link rel="replies" type="text/html" href="/2013/03/19/converting-a-running-physical-machine-to-a-kvm-virtual-machine/#comments" thr:count="0"/>
+		<link rel="replies" type="application/atom+xml" href="/2013/03/19/converting-a-running-physical-machine-to-a-kvm-virtual-machine/feed/atom/" thr:count="0"/>
+		<thr:total>0</thr:total>
+	</entry>
+		<entry>
+		<author>
+			<name>Manuel Kiessling</name>
+					</author>
 		<title type="html"><![CDATA[Applying The Clean Architecture to Go applications]]></title>
 		<link rel="alternate" type="text/html" href="/2012/09/28/applying-the-clean-architecture-to-go-applications/" />
 		<id>/?p=723</id>
-		<updated>2012-09-28T21:37:11Z</updated>
+		<updated>2013-05-14T06:25:46Z</updated>
 		<published>2012-09-28T07:34:09Z</published>
 		<category scheme="/" term="English articles only" /><category scheme="/" term="Software" /><category scheme="/" term="Tutorial" /><category scheme="/" term="golang" />		<summary type="html"><![CDATA[I would like to contribute to Uncle Bob's concept of The Clean Architecture by demonstrating how its principles could be applied to an actual Go application.]]></summary>
 		<content type="html" xml:base="/2012/09/28/applying-the-clean-architecture-to-go-applications/"><![CDATA[<h2>What this text is about</h2>
@@ -894,7 +1145,6 @@ func (handler *SqliteHandler) Execute(statement string) {
 }
 
 func (handler *SqliteHandler) Query(statement string) interfaces.Row {
-	//fmt.Println(statement)
 	rows, err := handler.Conn.Query(statement)
 	if err != nil {
 		fmt.Println(err)
@@ -2068,7 +2318,7 @@ node $DIR/../node_modules/jasmine-node/lib/jasmine-node/cli.js $DIR
 		<title type="html"><![CDATA[Object-orientation and inheritance in JavaScript: a comprehensive explanation]]></title>
 		<link rel="alternate" type="text/html" href="/2012/03/23/object-orientation-and-inheritance-in-javascript-a-comprehensive-explanation/" />
 		<id>http://172.16.233.129/wordpress/?p=568</id>
-		<updated>2012-05-06T15:01:26Z</updated>
+		<updated>2013-09-25T19:12:09Z</updated>
 		<published>2012-03-23T09:43:26Z</published>
 		<category scheme="/" term="English articles only" /><category scheme="/" term="Software" /><category scheme="/" term="Tutorial" />		<summary type="html"><![CDATA[<p>
 Let’s talk about object-orientation and inheritance in JavaScript.
@@ -2318,7 +2568,7 @@ for (var i = 0; i < 1000000; i++) {
 
 Car                 Bike
 &gt; honk              &gt; ring</code>
-<p>Designing this relationship in a class-based language like Java is straightforward: We would define a class <em>Vehicle</em> with a method <em>drive</em>, and two classes <em>Car</em> and <em>Bike</em> which both <em>extend</em> the <em>Vehicle</em> class, and implement a <em>honk</em> and a <em>ring</em> class, respectively.</p>
+<p>Designing this relationship in a class-based language like Java is straightforward: We would define a class <em>Vehicle</em> with a method <em>drive</em>, and two classes <em>Car</em> and <em>Bike</em> which both <em>extend</em> the <em>Vehicle</em> class, and implement a <em>honk</em> and a <em>ring</em> method, respectively.</p>
 <p>This would make the car as well as bike objects inherit the drive behaviour through the inheritance of their classes.</p>
 <p>How does this work in JavaScript, where we don't have classes, but prototypes?</p>
 <p>Let's look at an example first, and then dissect it. To keep the code short for now, let's only start with a car that inherits from a vehicle:</p>
