@@ -15,9 +15,9 @@
             <div class="center-column">
                 <ul id="menu">
                     <li><a href="/" ><span></span><br />HOME</a></li>
+                    <li><a href="/agile-software-and-systems-newsletter/"><span></span><br /><strong>NEW:</strong> AGILE SOFTWARE AND SYSTEMS NEWSLETTER</a></li>
                     <li><a href="/projects/"><span></span><br />PROJECTS</a></li>
                     <li><a href="/contact/"><span></span><br />CONTACT</a></li>
-                    <li><a href="http://photographs.manuel.kiessling.net/"><span></span><br />PHOTOGRAPHS</a></li>
                     <li><a href="/feed/"><span></span><br />RSS</a></li>
                     <li><a href="#about"><span></span><br />ABOUT</a></li>
                 </ul>
@@ -40,7 +40,7 @@
         <div class="post-content single">
             <div itemProp="articleBody"><h2>About</h2>
 <p>
-In <a href="2014/03/26/building-manageable-server-infrastructures-with-puppet-part-1/">Part 1 of <em>Building manageable server infrastructures with Puppet</em></a>, we have set up two virtual Linux systems, a <em>puppetserver</em> and a <em>puppetclient</em>. We reached an important first milestone: We installed and set up the Puppet server and Puppet client software on their respective machines, and we authenticated the Puppet client with the Puppet server. We are now going to use this setup to start configuring our <em>puppetclient</em> system through the Puppet server on the <em>puppetserver</em> system.
+In <a href="/2014/03/26/building-manageable-server-infrastructures-with-puppet-part-1/">Part 1 of <em>Building manageable server infrastructures with Puppet</em></a>, we have set up two virtual Linux systems, a <em>puppetserver</em> and a <em>puppetclient</em>. We reached an important first milestone: We installed and set up the Puppet server and Puppet client software on their respective machines, and we authenticated the Puppet client with the Puppet server. We are now going to use this setup to start configuring our <em>puppetclient</em> system through the Puppet server on the <em>puppetserver</em> system.
 </p>
 
 <h2>Hello Puppet World</h2>
@@ -62,7 +62,7 @@ To do so, we will put a very basic manifest definition into the main manifest fi
 
 <p>
 <span class="filename beforecode">/etc/puppet/manifests/site.pp on puppetserver</span>
-<code>node "puppetclient" {
+<pre><code>node "puppetclient" {
 
   file { "/root/helloworld.txt":
     ensure => file,
@@ -71,7 +71,7 @@ To do so, we will put a very basic manifest definition into the main manifest fi
     mode   => 0644
   }
 
-}</code>
+}</code></pre>
 </p>
 
 <p>
@@ -88,12 +88,12 @@ What this means in practice can easily be demonstrated, by running the Puppet ag
 
 <p>
 <span class="filename beforecode">On the puppetclient VM</span>
-<code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
+<pre><code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
 
 info: Caching catalog for puppetclient
 info: Applying configuration version '1395862307'
 notice: /Stage[main]//Node[puppetclient]/File[/home/ubuntu/helloworld.txt]/ensure: created
-notice: Finished catalog run in 0.03 seconds</code>
+notice: Finished catalog run in 0.03 seconds</code></pre>
 </p>
 
 <p>
@@ -114,11 +114,11 @@ We can verify this behaviour by running the agent again:
 
 <p>
 <span class="filename beforecode">On the puppetclient VM</span>
-<code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
+<pre><code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
 
 info: Caching catalog for puppetclient
 info: Applying configuration version '1395862542'
-notice: Finished catalog run in 0.03 seconds</code>
+notice: Finished catalog run in 0.03 seconds</code></pre>
 </p>
 
 <p>
@@ -136,12 +136,12 @@ Run the agent again:
 
 <p>
 <span class="filename beforecode">On the puppetclient VM</span>
-<code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
+<p><code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
 
 info: Caching catalog for puppetclient
 info: Applying configuration version '1395862542'
 notice: /Stage[main]//Node[puppetclient]/File[/home/ubuntu/helloworld.txt]/mode: mode changed '0640' to '0644'
-notice: Finished catalog run in 0.03 seconds</code>
+notice: Finished catalog run in 0.03 seconds</code></p>
 </p>
 
 <p>
@@ -163,11 +163,11 @@ What if the change the content of the file&#8230;
 
 <p>
 <span class="filename beforecode">On the puppetclient VM</span>
-<code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
+<pre><code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
 
 info: Caching catalog for puppetclient
 info: Applying configuration version '1395862542'
-notice: Finished catalog run in 0.03 seconds</code>
+notice: Finished catalog run in 0.03 seconds</code></pre>
 </p>
 
 <p>
@@ -183,9 +183,9 @@ This philosophy carries great power, because it abstracts away the grunt work ne
 </p>
 
 <p>
-<code>package { "htop":
+<pre><code>package { "htop":
   ensure => installed
-}</code>
+}</code></pre>
 </p>
 
 <p>
@@ -202,9 +202,9 @@ First, let&#8217;s create the source file on the <em>puppetserver</em>:
 
 <p>
 <span class="filename beforecode">On the puppetserver VM</span>
-<code>~# <strong>sudo -s</strong>
+<pre><code>~# <strong>sudo -s</strong>
 ~# <strong>mkdir /etc/puppet/files</strong>
-~# <strong>echo "Hello World." > /etc/puppet/files/helloworld.txt</strong></code>
+~# <strong>echo "Hello World." > /etc/puppet/files/helloworld.txt</strong></code></pre>
 </p>
 
 <p>
@@ -213,7 +213,7 @@ Then, we need to allow access to the <em>files</em> folder on the server for Pup
 
 <p>
 <span class="filename beforecode">/etc/puppet/fileserver.conf on puppetserver</span>
-<code># This file consists of arbitrarily named sections/modules
+<pre><code># This file consists of arbitrarily named sections/modules
 # defining where files are served from and to whom
 
 # Define a section 'files'
@@ -230,7 +230,7 @@ Then, we need to allow access to the <em>files</em> folder on the server for Pup
 [plugins]
 #  allow *.example.com
 #  deny *.evil.example.com
-#  allow 192.168.0.0/24</code>
+#  allow 192.168.0.0/24</code></pre>
 </p>
 
 <p>
@@ -239,7 +239,7 @@ Now we can extend our existing <em>file</em> block in the manifest file <em>vim 
 
 <p>
 <span class="filename beforecode">/etc/puppet/manifests/site.pp on puppetserver</span>
-<code>node "puppetclient" {
+<pre><code>node "puppetclient" {
 
   file { "/root/helloworld.txt":
     ensure => file,
@@ -249,7 +249,7 @@ Now we can extend our existing <em>file</em> block in the manifest file <em>vim 
 <span class="highlight">    source => "puppet://puppetserver/files/helloworld.txt"</span>
   }
 
-}</code>
+}</code></pre>
 </p>
 
 <p>
@@ -258,14 +258,14 @@ Let&#8217;s run the agent on the client system once again:
 
 <p>
 <span class="filename beforecode">On the puppetclient VM</span>
-<code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
+<pre><code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
 
 info: Caching catalog for puppetclient
 info: Applying configuration version '1395878127'
 info: FileBucket adding {md5}ff22941336956098ae9a564289d1bf1b
 info: /Stage[main]//Node[puppetclient]/File[/home/ubuntu/helloworld.txt]: Filebucketed /home/ubuntu/helloworld.txt to puppet with sum ff22941336956098ae9a564289d1bf1b
 notice: /Stage[main]//Node[puppetclient]/File[/home/ubuntu/helloworld.txt]/content: content changed '{md5}ff22941336956098ae9a564289d1bf1b' to '{md5}770b95bb61d5b0406c135b6e42260580'
-notice: Finished catalog run in 0.09 seconds</code>
+notice: Finished catalog run in 0.09 seconds</code></pre>
 </p>
 
 <p>
@@ -273,7 +273,7 @@ Now the Puppet agent does care about the contents of the file and overwrites the
 </p>
 
 <p>
-In the soon-to-be-released part 3 of <em>Building manageable server infrastructures with Puppet</em> we will look at more complex manifests, and how to structure our manifests into modules.
+In <a href="/2014/03/26/building-manageable-server-infrastructures-with-puppet-part-3/">part 3 of <em>Building manageable server infrastructures with Puppet</em></a> we will look at more complex manifests, and how to structure our manifests into modules.
 </p></div>
             <div id="twitterfollow">
                 <span class="note">If you would like to be informed on updates to this post, just <a href="https://twitter.com/manuelkiessling">follow @manuelkiessling</a></span>
@@ -304,7 +304,7 @@ In the soon-to-be-released part 3 of <em>Building manageable server infrastructu
 </div> <!-- end of comment-wrapper -->
 
 
-            <a name="about"/>
+            <a name="about"></a>
             <div id="footer">
                 <div class="image">
                     <img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=160" width="160" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
@@ -314,7 +314,7 @@ In the soon-to-be-released part 3 of <em>Building manageable server infrastructu
                         This is the homepage and blog of <a href="https://plus.google.com/100272082905360445612?rel=author">Manuel Kiessling</a>. 
                     </p>
                     <p>
-                        I'm a software architect, test driven developer, linux admin, agilist, the author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>, and father of two.
+                        I'm a software architect, test driven developer, linux admin, agilist, author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>, and father of two.
                     </p>
                     <p>
                         Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>

@@ -38,7 +38,7 @@ del {
   color: #999;
   border-radius: 12px 12px 0 0;
   padding-top: 8px;
-  padding-bottom: 16px;
+  padding-bottom: 24px;
   padding-left: 16px;
   padding-right: 16px;
 }
@@ -59,12 +59,7 @@ code {
   line-height: 1.2em;
   overflow-x: auto;
 }
-code span.highlight {
-  background-color: #070;
-  display: block;
-  margin-bottom: -16px;
-}
-code span.addedline {
+code span.highlight, code span.addedline {
   color: #0f0;
 }
 table {
@@ -652,14 +647,14 @@ a {
 }
 #footer .image {
   float: left;
-  width: 260px;
+  width: 400px;
   margin: 0 40px 0 0;
 }
 #footer .text {
   padding-top: 8px;
   color: black;
   float: left;
-  width: 580px;
+  width: 440px;
 }
 #footer .text p {
   font-size: 12pt;
@@ -668,6 +663,9 @@ a {
 }
 
 @media screen and (max-width: 912px), screen and (max-device-width: 912px) {
+  ul#menu {
+    display: none;
+  }
   .center-column, .post-content {
     width: 89%;
   }
@@ -690,6 +688,9 @@ a {
   }
   #footer .image, #footer .text {
     width: 100%;
+  }
+  #footer .text {
+    padding-top: 36px;
   }
   #footer {
     height: 600px;

@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+    <head profile="http://gmpg.org/xfn/11">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Mocking Dependencies in PHP Unit Tests with Mockery » The Log Book of Manuel Kiessling</title>
+        <meta name="description" content="Mocking Dependencies in PHP Unit Tests with Mockery » Writings about agile software development and system operation topics" />
+        <link rel="stylesheet" href="/wp-content/themes/wu-wei/style.css" type="text/css" />
+        <link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling RSS Feed" href="/feed/" />
+        <link rel="alternate" type="application/atom+xml" title="The Log Book of Manuel Kiessling Atom Feed" href="/feed/atom/" />
+    </head>
+    
+    <body id="top" class="">
+        <div class="full-column">
+            <div class="center-column">
+                <ul id="menu">
+                    <li><a href="/" ><span></span><br />HOME</a></li>
+                    <li><a href="/agile-software-and-systems-newsletter/"><span></span><br /><strong>NEW:</strong> AGILE SOFTWARE AND SYSTEMS NEWSLETTER</a></li>
+                    <li><a href="/projects/"><span></span><br />PROJECTS</a></li>
+                    <li><a href="/contact/"><span></span><br />CONTACT</a></li>
+                    <li><a href="/feed/"><span></span><br />RSS</a></li>
+                    <li><a href="#about"><span></span><br />ABOUT</a></li>
+                </ul>
+                <div class="clearboth"><!-- --></div>
+            </div>
+        </div>
+    <div class="center-column">
+        <div id="header">
+            <div class="blog-name"><a href="/">The Log Book of Manuel Kiessling</a></div>
+        </div>
+
+
+    <div itemscope itemtype="http://schema.org/BlogPosting" class="post-994 post hentry category-english-articles category-software category-tutorial" id="post-994">
+        <div class="post-info single">
+            <h1><a itemprop="url" href="/2014/05/08/mocking-dependencies-in-php-unit-tests-with-mockery/" rel="bookmark" title="Mocking Dependencies in PHP Unit Tests with Mockery"><span itemprop="name">Mocking Dependencies in PHP Unit Tests with Mockery</span></a></h1>
+            <div itemprop="datePublished" content="2014-05-08" class="timestamp">May 8, 2014</div>
+            <div class="clearboth"><!-- --></div>
+        </div>
+
+        <div class="post-content single">
+            <div itemProp="articleBody"><p>
+<em>The following solution is based on the work of my coworker Marcel Frank.</em>
+</p>
+
+<p>
+The PHP library <a href="https://github.com/padraic/mockery">Mockery</a> allows to use a simulated version of certain objects within unit tests, where objects are passed into methods as dependencies. This form of simulation is called <em>mocking</em>.
+</p>
+
+<p>
+Instead of trying to explain why simulating these objects in the tests makes sense, I will try to illustrate the need for it with an example.
+</p>
+
+<p>
+The following class is responsible for getting news headlines from a database and returning an array of these headlines in a certain format. It has its own share of logic, but clearly depends on a database connection object in order to do its job:
+</p>
+
+<p>
+<pre><code>class NewsReader
+{
+    public function getAllHeadlinesUppercase(\Doctrine\DBAL\Connection $dbConnection)
+    {
+        $headlines = array();
+
+        $statement = $dbConnection->executeQuery('SELECT headline FROM news ORDER BY id DESC');
+
+        while ($row = $statement->fetch()) {
+            $headlines[] = strtoupper($row['headline']);
+        }
+
+        return $headlines;
+    }
+}</code></pre>
+</p>
+
+<p>
+The dependency on the <em>\Doctrine\DBAL\Connection</em> object makes it difficult to test this class: preferably, we would like to only test the behaviour of the method itself: does it query the database, and does it transform (and return) the result as it should? It would be overkill, and actually quite annoying, if we had to set up an actual database server that has the table we need, which in turn would need to have some useful sample data, only to make sure that this simple method behaves correctly.
+</p>
+
+<p>
+The solution here is to pass a simulation of <em>$dbConnection</em> into this method, instead of the real thing. The real thing needs a real database to do its job &#8211; the simulation, or <em>mock</em>, of a <em>\Doctrine\DBAL\Connection</em> looks and feels like a real connection object, but its behaviour is only a realistic fake. This way, <em>getAllHeadlinesUppercase</em> can use it, but we don&#8217;t need the database infrastructure for our test.
+</p>
+
+<p>
+Let&#8217;s first look how a unit test for our class would look like if we would <em>not</em> use mocking:
+</p>
+
+<p>
+<pre><code>class NewsReaderTest extends \PHPUnit_Framework_TestCase
+{
+    public function testGetAllHeadlinesUppercase()
+    {
+        $dbConnection = ... // Do whatever is needed to create a real connection to a real database
+
+        $newsReader = new NewsReader();
+       
+        $expectedHeadlines = array('FIRST HEADLINE', 'SECOND HEADLINE');
+        $actualHeadlines = $newsReader->getAllHeadlinesUppercase($dbConnection);
+
+        $this->assertEqual($expectedHeadlines, $actualHeadlines);
+    }
+}</pre></code>
+</p>
+
+<p>
+Straight forward, but as said, it would need a running database that carried the two headlines in order to work.
+</p>
+
+<p>
+Here is a version of the test where we replace the database connection object with a mock:
+</p>
+
+<p>
+<pre><code>class NewsReaderTest extends \PHPUnit_Framework_TestCase
+{
+    public function testGetAllHeadlinesUppercase()
+    {
+<span class="highlight">        $mockedDbConnection = \Mockery::mock('\Doctrine\DBAL\Connection');
+
+        $mockedStatement = \Mockery::mock('\Doctrine\DBAL\Driver\Statement');
+
+        $mockedDbConnection
+            ->shouldReceive('executeQuery')
+            ->with('SELECT headline FROM news ORDER BY id DESC')
+            ->andReturn($mockedStatement);
+
+        $mockedRows = array(
+            array('headline' => 'First headline'),
+            array('headline' => 'Second headline')
+        );
+
+        $mockedStatement
+            ->shouldReceive('fetch')
+            ->andReturnUsing(function () use (&#038;$mockedRows) {
+                $row = current($mockedRows);
+                next($mockedRows);
+                return $row;
+            });</span>
+
+        $newsReader = new NewsReader();
+
+        $expectedHeadlines = array('FIRST HEADLINE', 'SECOND HEADLINE');
+        $actualHeadlines = $newsReader->getAllHeadlinesUppercase(<span class="highlight">$mockedDbConnection</span>);
+
+        $this->assertEquals($expectedHeadlines, $actualHeadlines);
+    }
+}</code></pre>
+
+<p>
+Let's work through it step by step in order to understand what is happening.
+</p>
+
+<p>
+We start by building our mock objects. First <em>$mockedDbConnection</em>; to do so, we call <em>Mockery::mock</em>, which returns a mock object based on the class name we pass it.
+<p>
+
+<p>
+We also need to mock a <em>\Doctrine\DBAL\Driver\Statement</em> object, because <em>getAllHeadlinesUppercase</em> will call <em>$mockedDbConnection::executeQuery</em> which returns a statement object of this type; subsequently, <em>getAllHeadlinesUppercase</em> calls <em>fetch</em> on this statement object, and therefore, this has to be simulated, too.
+</p>
+
+<p>
+Now comes the interesting part: we programatically define the behaviour of our simulated objects. Things that would "just happen" if we had a real database need to be defined by us now - this makes our mocks behave realistically enough so <em>getAllHeadlinesUppercase</em> won't realize the difference and take the simulation objects for the real thing.
+</p>
+
+<p>
+<em>Mockery</em> provides a nice API for defining simulated behaviour. Let's have a closer look at the first definition:
+</p>
+
+<p>
+<pre><code>        $mockedDbConnection
+            ->shouldReceive('executeQuery')
+            ->with('SELECT headline FROM news ORDER BY id DESC')
+            ->andReturn($mockedStatement);</code></pre>
+<p>
+
+<p>
+What happens here is: we define how the <em>$mockedDbConnection</em> object will behave when its method <em>executeQuery</em> is called. We also implicitly express an expectation: we expect <em>getAllHeadlinesUppercase</em> to call this method with a certain parameter (the query), and if it would call <em>executeQuery</em> differently, then Mockery would make our test case fail.
+</p>
+
+<p>
+We also declare what <em>executeQuery</em> should return if it is called. The real object would return a real statement object - our mock will return a mocked statement object, which is set up as follows:
+</p>
+
+<p>
+<pre><code>        $mockedRows = array(
+            array('headline' => 'First headline'),
+            array('headline' => 'Second headline')
+        );
+
+        $mockedStatement
+            ->shouldReceive('fetch')
+            ->andReturnUsing(function () use (&#038;$mockedRows) {
+                $row = current($mockedRows);
+                next($mockedRows);
+                return $row;
+            });</code></pre>
+</p>
+
+<p>
+The code using our mocks still expects rows to be returned when calling <em>fetch()</em> on the statement object. We simulate this behaviour by iterating through an array we declare right in our test case, which gives us full control over the data the code-under-test receives.
+</p>
+
+<p>
+What then follows is the test case as we know it. We instantiate the <em>newsReader</em> object, and this time, we pass it our prepared mock database connection object instead of the real one:
+</p>
+
+<p>
+<pre><code>        $newsReader = new NewsReader();
+
+        $expectedHeadlines = array('FIRST HEADLINE', 'SECOND HEADLINE');
+        $actualHeadlines = $newsReader->getAllHeadlinesUppercase(<span class="highlight">$mockedDbConnection</span>);
+
+        $this->assertEquals($expectedHeadlines, $actualHeadlines);</code></pre>
+</p>
+
+<p>
+As said, the bonus achievement here is that not only can we simulate a database and verify that the <em>getAllHeadlinesUppercase</em> method does the right thing in the face of a given set of table rows, we also verify that it correctly queries the database. In case you change the <em>SELECT</em> statement, either the expected one in the test case or the actual one in the <em>getAllHeadlinesUppercase</em> method, Mockery will throw an exception because it can no longer find a matching method definition call in the mock setup.
+</p></div>
+            <div id="twitterfollow">
+                <span class="note">If you would like to be informed on updates to this post, just <a href="https://twitter.com/manuelkiessling">follow @manuelkiessling</a></span>
+            </div>
+                    </div>
+        <div class="clearboth"><!-- --></div>
+    </div>
+
+    <a name="comments" />
+    
+<!-- You can start editing here. -->
+
+<div id="comment-wrapper">
+
+                     <div id="disqus_thread"></div>
+                     <script type="text/javascript">
+                      var disqus_shortname = 'thelogbookofmanuelkiessling';
+                      var disqus_identifier = '994';
+                      var disqus_url = 'http://manuel.kiessling.net/2014/05/08/mocking-dependencies-in-php-unit-tests-with-mockery/';
+                      (function() {
+                       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                       dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                     </script>
+                     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div> <!-- end of comment-wrapper -->
+
+
+            <a name="about"></a>
+            <div id="footer">
+                <div class="image">
+                    <img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=160" width="160" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
+                </div>
+                <div class="text">
+                    <p>
+                        This is the homepage and blog of <a href="https://plus.google.com/100272082905360445612?rel=author">Manuel Kiessling</a>. 
+                    </p>
+                    <p>
+                        I'm a software architect, test driven developer, linux admin, agilist, author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>, and father of two.
+                    </p>
+                    <p>
+                        Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+        
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-2127388-5']);
+          _gaq.push(['_trackPageview']);
+        
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        
+        </script>
+
+    </body>
+</html>

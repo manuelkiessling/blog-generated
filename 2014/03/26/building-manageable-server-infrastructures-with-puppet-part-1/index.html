@@ -15,9 +15,9 @@
             <div class="center-column">
                 <ul id="menu">
                     <li><a href="/" ><span></span><br />HOME</a></li>
+                    <li><a href="/agile-software-and-systems-newsletter/"><span></span><br /><strong>NEW:</strong> AGILE SOFTWARE AND SYSTEMS NEWSLETTER</a></li>
                     <li><a href="/projects/"><span></span><br />PROJECTS</a></li>
                     <li><a href="/contact/"><span></span><br />CONTACT</a></li>
-                    <li><a href="http://photographs.manuel.kiessling.net/"><span></span><br />PHOTOGRAPHS</a></li>
                     <li><a href="/feed/"><span></span><br />RSS</a></li>
                     <li><a href="#about"><span></span><br />ABOUT</a></li>
                 </ul>
@@ -166,7 +166,7 @@ Now boot up both machines and log in with the <em>ubuntu</em> user. We need to c
 
 <p>
 <span class="filename beforecode">/etc/network/interfaces on puppetserver</span>
-<code>auto lo
+<pre><code>auto lo
 iface lo inet loopback
 
 auto eth0
@@ -175,7 +175,7 @@ iface eth0 inet static
 	netmask 255.255.255.0
 
 auto eth1
-iface eth1 inet dhcp</code>
+iface eth1 inet dhcp</code></pre>
 </p>
 
 <p>
@@ -184,7 +184,7 @@ And this is how it must look on the <em>puppetclient</em>:
 
 <p>
 <span class="filename beforecode">/etc/network/interfaces on puppetclient</span>
-<code>auto lo
+<pre><code>auto lo
 iface lo inet loopback
 
 auto eth0
@@ -193,7 +193,7 @@ iface eth0 inet static
 	netmask 255.255.255.0
 
 auto eth1
-iface eth1 inet dhcp</code>
+iface eth1 inet dhcp</code></pre>
 </p>
 
 <p>
@@ -206,7 +206,7 @@ The last step is to add both machine&#8217;s names to the <em>hosts</em> file on
 
 <p>
 <span class="filename beforecode">/etc/hosts on puppetserver</span>
-<code>127.0.0.1       localhost
+<pre><code>127.0.0.1       localhost
 127.0.1.1       puppetserver
 192.168.56.3    puppetclient
 
@@ -215,7 +215,7 @@ The last step is to add both machine&#8217;s names to the <em>hosts</em> file on
 fe00::0 ip6-localnet
 ff00::0 ip6-mcastprefix
 ff02::1 ip6-allnodes
-ff02::2 ip6-allrouters</code>
+ff02::2 ip6-allrouters</code></pre>
 </p>
 
 <p>
@@ -224,7 +224,7 @@ And on the <em>puppetclient</em>:
 
 <p>
 <span class="filename beforecode">/etc/hosts on puppetclient</span>
-<code>127.0.0.1       localhost
+<pre><code>127.0.0.1       localhost
 127.0.1.1       puppetclient
 192.168.56.2    puppetserver
 
@@ -233,7 +233,7 @@ And on the <em>puppetclient</em>:
 fe00::0 ip6-localnet
 ff00::0 ip6-mcastprefix
 ff02::1 ip6-allnodes
-ff02::2 ip6-allrouters</code>
+ff02::2 ip6-allrouters</code></pre>
 </p>
 
 <p>
@@ -257,8 +257,8 @@ To install the neccessary software packages, log in to the <em>puppetserver</em>
 
 <p>
 <span class="filename beforecode">On the puppetserver VM</span>
-<code>~# <strong>sudo apt-get update</strong>
-~# <strong>sudo apt-get install puppetmaster</strong></code>
+<pre><code>~# <strong>sudo apt-get update</strong>
+~# <strong>sudo apt-get install puppetmaster</strong></code></pre>
 </p>
 
 <p>
@@ -273,8 +273,8 @@ Getting the Puppet client (or, in Puppet lingo, <em>agent</em>) up and running o
 
 <p>
 <span class="filename beforecode">On the puppetclient VM</span>
-<code>~# <strong>sudo apt-get update</strong>
-~# <strong>sudo apt-get install puppet</strong></code>
+<pre><code>~# <strong>sudo apt-get update</strong>
+~# <strong>sudo apt-get install puppet</strong></code></pre>
 </p>
 
 <p>
@@ -283,7 +283,7 @@ Then, we need to tell the agent what the domain name of the Puppet server is, by
 
 <p>
 <span class="filename beforecode">/etc/puppet/puppet.conf on puppetclient</span>
-<code>[main]
+<pre><code>[main]
 server=puppetserver
 logdir=/var/log/puppet
 vardir=/var/lib/puppet
@@ -298,7 +298,7 @@ postrun_command=/etc/puppet/etckeeper-commit-post
 # These are needed when the puppetmaster is run by passenger
 # and can safely be removed if webrick is used.
 ssl_client_header = SSL_CLIENT_S_DN 
-ssl_client_verify_header = SSL_CLIENT_VERIFY</code>
+ssl_client_verify_header = SSL_CLIENT_VERIFY</code></pre>
 </p>
 
 <p>
@@ -320,10 +320,10 @@ If everything has been correctly set up, then the output of this first run will 
 
 <p>
 <span class="filename beforecode">On the puppetclient VM, after running the Puppet agent</span>
-<code>info: Creating a new SSL key for puppetclient
+<pre><code>info: Creating a new SSL key for puppetclient
 info: Creating a new SSL certificate request for puppetclient
 info: Certificate Request fingerprint (md5): 20:74:A7:BD:69:5D:50:8D:6A:79:67:6E:DC:5E:41:E0
-Exiting; no certificate found and waitforcert is disabled</code>
+Exiting; no certificate found and waitforcert is disabled</code></pre>
 </p>
 
 <p>
@@ -350,10 +350,10 @@ We can now sign the request, which will allow the client to actually retrieve in
 
 <p>
 <span class="filename beforecode">On the puppetserver VM</span>
-<code>~# <strong>sudo puppet cert --sign puppetclient</strong>
+<pre><code>~# <strong>sudo puppet cert --sign puppetclient</strong>
 
 notice: Signed certificate request for puppetclient
-notice: Removing file Puppet::SSL::CertificateRequest puppetclient at '/var/lib/puppet/ssl/ca/requests/puppetclient.pem'</code>
+notice: Removing file Puppet::SSL::CertificateRequest puppetclient at '/var/lib/puppet/ssl/ca/requests/puppetclient.pem'</code></pre>
 </p>
 
 <p>
@@ -362,18 +362,18 @@ Switching back to the <em>puppetclient</em>, we are now able to initiate a full 
 
 <p>
 <span class="filename beforecode">On the puppetserver VM</span>
-<code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
+<pre><code>~# <strong>sudo puppet agent --verbose --no-daemonize --onetime</strong>
 
 info: Caching certificate for puppetclient
 info: Caching certificate_revocation_list for ca
 info: Caching catalog for puppetclient
 info: Applying configuration version '1395687915'
 info: Creating state file /var/lib/puppet/state/state.yaml
-notice: Finished catalog run in 0.02 seconds</code>
+notice: Finished catalog run in 0.02 seconds</code></pre>
 </p>
 
 <p>
-And that&#8217;s it &#8211; our Puppet infrastructure is fully up and running. However, there is nothing yet within that infrastructure that actually <em>does</em> anything. Our goal is to manage the configuration of our <em>puppetclient</em> through the Puppet master running on the <em>puppetserver</em>. But we have not yet defined any content that could trigger a configuration change on the client. This is what we will do next, in <a href="2014/03/26/building-manageable-server-infrastructures-with-puppet-part-2/">Part 2 of <em>Building manageable server infrastructures with Puppet</em></a>.
+And that&#8217;s it &#8211; our Puppet infrastructure is fully up and running. However, there is nothing yet within that infrastructure that actually <em>does</em> anything. Our goal is to manage the configuration of our <em>puppetclient</em> through the Puppet master running on the <em>puppetserver</em>. But we have not yet defined any content that could trigger a configuration change on the client. This is what we will do next, in <a href="/2014/03/26/building-manageable-server-infrastructures-with-puppet-part-2/">Part 2 of <em>Building manageable server infrastructures with Puppet</em></a>.
 </p></div>
             <div id="twitterfollow">
                 <span class="note">If you would like to be informed on updates to this post, just <a href="https://twitter.com/manuelkiessling">follow @manuelkiessling</a></span>
@@ -404,7 +404,7 @@ And that&#8217;s it &#8211; our Puppet infrastructure is fully up and running. H
 </div> <!-- end of comment-wrapper -->
 
 
-            <a name="about"/>
+            <a name="about"></a>
             <div id="footer">
                 <div class="image">
                     <img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=160" width="160" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
@@ -414,7 +414,7 @@ And that&#8217;s it &#8211; our Puppet infrastructure is fully up and running. H
                         This is the homepage and blog of <a href="https://plus.google.com/100272082905360445612?rel=author">Manuel Kiessling</a>. 
                     </p>
                     <p>
-                        I'm a software architect, test driven developer, linux admin, agilist, the author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>, and father of two.
+                        I'm a software architect, test driven developer, linux admin, agilist, author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>, and father of two.
                     </p>
                     <p>
                         Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
