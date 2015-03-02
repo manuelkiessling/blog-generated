@@ -41,8 +41,8 @@
         <div class="post-content single">
             <div itemProp="articleBody"><p><em>Dies ist ein Crosspost vom <a href="http://galeria-kaufhof.github.io/tutorials/2015/03/01/transformieren-und-validieren-von-json-requests-in-play2/">Galeria Kaufhof Technology Blog</a></em>.</p>
 
-<p>Als Anfänger in der Arbeit mit Scala und Play2 stehe ich aktuell vor der Aufgabe, eine einfache Webservice API mit Scala
-&amp; Play2 zu realisieren.</p>
+<p>Als Anfänger in der Arbeit mit Scala stehe ich aktuell vor der Aufgabe, eine einfache Webservice API in Play2 zu
+realisieren.</p>
 
 <p>Der Webservice hat einen Endpunkt <code class="inline">/api/experiments</code>, über den via POST ein A/B Test (bzw. <em>Experiment</em>) mit 2 oder mehr
 Varianten angelegt werden kann.</p>
@@ -100,7 +100,7 @@ darstellt. Diesem Model fehlt im Gegensatz zum persistierten Model z.B. eine ein
 )
 </code></pre>
 
-<p>Ein <code class="inline">FormExperiment</code> mit einer Liste von <code class="inline">Formvariation</code> Objekten wird durch die Persistierung zu einem <code class="inline">Experiment</code> mit
+<p>Ein <code class="inline">FormExperiment</code> mit einer Liste von <code class="inline">FormVariation</code> Objekten wird durch die Persistierung zu einem <code class="inline">Experiment</code> mit
 einer Liste von <code class="inline">Variation</code> Objekten, und damit zu “richtigen” fachlichen Entitäten im Sinne der Businesslogik der
 Anwendung. Auf die Details hierzu gehe ich jedoch nicht ein &#8211; im Folgenden zeige ich, wie aus dem JSON des eingehenden
 Requests ein <code class="inline">FormExperiment</code> mit einer Liste von <code class="inline">FormVariation</code> Objekten wird, und wie sichergestellt wird dass dies
@@ -131,7 +131,7 @@ implicit val formVariationReads: Reads[FormVariation] = (
 <p>Wie man sieht muss man lediglich einen <code class="inline">Reads</code> definieren, der die einzelnen Komponenten der JSON Struktur auf die
 richtigen Typen mappt und dann in die case Klasse transformiert. Wie dieser dann zum Einsatz kommt, sehen wir später.</p>
 
-<p>Diese Reads können auch geschachtelt werden, so dass wir unsere Entitätenstruktur, bei der ein <code>FormExperiment</code> neben
+<p>Diese Reads können auch geschachtelt werden, so dass wir unsere Entitätenstruktur, bei der ein <code class="inline">FormExperiment</code> neben
 direkten Attributen auch noch eine Liste von <code class="inline">FormVariation</code> Objekten beinhaltet, einfach abbilden können:</p>
 
 <pre><code>import play.api.libs.json._
