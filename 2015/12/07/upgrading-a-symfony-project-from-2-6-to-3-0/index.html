@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+    <head profile="http://gmpg.org/xfn/11">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Upgrading a Symfony project from 2.6 to 3.0 » The Log Book of Manuel Kiessling</title>
+        <meta name="description" content="Upgrading a Symfony project from 2.6 to 3.0 » Writings about agile software development and system operation topics" />
+        <link href="http://fonts.googleapis.com/css?family=Roboto:300,100" rel="stylesheet" type="text/css">
+        <link href="http://fonts.googleapis.com/css?family=Roboto+Slab:300" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="/wp-content/themes/wu-wei/style.css" type="text/css" />
+        <link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling RSS Feed" href="/feed/" />
+        <link rel="alternate" type="application/atom+xml" title="The Log Book of Manuel Kiessling Atom Feed" href="/feed/atom/" />
+    </head>
+    
+    <body id="top" class="">
+        <div class="full-column">
+            <div class="center-column">
+                <ul id="menu">
+                    <li><a href="/" ><span></span><br />HOME</a></li>
+                    <li><a href="/projects/"><span></span><br />PROJECTS</a></li>
+                    <li><a href="/contact/"><span></span><br />CONTACT</a></li>
+                    <li><a href="/feed/"><span></span><br />RSS</a></li>
+                    <li><a href="#about"><span></span><br />ABOUT</a></li>
+                </ul>
+                <div class="clearboth"><!-- --></div>
+            </div>
+        </div>
+    <div class="center-column">
+        <div id="header">
+            <div class="blog-name"><a href="/">The Log Book of Manuel Kiessling</a></div>
+        </div>
+
+
+    <div itemscope itemtype="http://schema.org/BlogPosting" class="post-1338 post hentry category-english-articles category-software category-tutorial" id="post-1338">
+        <div class="post-info single">
+            <h1><a itemprop="url" href="/2015/12/07/upgrading-a-symfony-project-from-2-6-to-3-0/" rel="bookmark" title="Upgrading a Symfony project from 2.6 to 3.0"><span itemprop="name">Upgrading a Symfony project from 2.6 to 3.0</span></a></h1>
+            <div itemprop="datePublished" content="2015-12-07" class="timestamp">December 7, 2015</div>
+            <div class="clearboth"><!-- --></div>
+        </div>
+
+        <div class="post-content single">
+            <div itemProp="articleBody"><h2>About this post</h2>
+
+<p>
+<a href="http://symfony.com/blog/symfony-3-0-0-released">Symfony 3.0 has been released</a> recently, and I wanted to upgrade my side project <a href="http://journeymonitor.com">JourneyMonitor</a>, which was still based on Symfony 2.6, as quickly as possible.
+</p>
+
+<p>
+This post explains how I approached the upgrade, and shows which parts of the project structure and code had to be changed in order to get the project working again.
+</p>
+
+
+<h2>Preparing the upgrade</h2>
+
+<p>
+The code base for the project &#8211; the CONTROL component of the JourneyMonitor project &#8211; lives at <a href="https://github.com/journeymonitor/control/">https://github.com/journeymonitor/control/</a>. As you can see in <a href="https://github.com/journeymonitor/control/blob/3223fb000f72f749b783c157cd632f370a31c9fa/composer.json#L13">an older revision of file <em>composer.json</em></a>, it was based on Symfony 2.6, and several other dependencies. In order to find out how exactly I would have to change the versions of these dependencies, I updated the <a href="https://github.com/symfony/symfony-installer">Symfony Installer</a> to the latest version and created a new Symfony 3.0 project via <code class="inline">symfony new foo 3.0</code> &#8211; it served as a reference only and was later thrown away. I compared its <code class="inline">composer.json</code> file with the one from my project, and changed the latter accordingly. You can <a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-14">view the exact changes side-by-side at Github</a>.
+</p>
+
+<p>
+Afterwards, I ran <code class="inline">composer --with-dependencies update</code>.
+</p>
+
+
+<h2>Changing the project structure</h2>
+
+<p>
+Symfony 3.0 introduces a new project directory structure. Some (but not all) of the stuff that used to live below <code class="inline">app/</code> now lives either in a new folder, <code class="inline">var/</code>, or in <code class="inline">bin/</code>. I git moved <code class="inline">app/console</code> to <code class="inline">bin/console</code>, and then copied the <code class="inline">bin/console</code> script from the <em>foo</em> project to <code class="inline">bin/console</code> in my project. Then, I moved <code class="inline">app/SymfonyRequirements.php</code> to <code class="inline">var/SymfonyRequirements.php</code>, and moved <code class="inline">app/cache</code> and <code class="inline">app/logs</code> to <code class="inline">var/</code>.
+</p>
+
+<p>
+The path changes had to be reflected in several files, and <code class="inline">app/autoload.php</code> now often takes the role of <code class="inline">bootstrap.php.cache</code> &#8211; see <a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-0">here</a>, <a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-16">here</a>, and <a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-27">here</a> for example.
+</p>
+
+
+<h2>Fixing the code</h2>
+
+<p>
+At this point, the project did not work anymore, and what followed was the grunt work of changing the code. You can see all changes that had to be done <a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63">in this side-by-side diff</a>. Here are some of the more interesting parts:
+</p>
+
+<p>
+<ul>
+<li><a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-bf0e70bcef1a5d5b2f87289220a51108">Bootstrap form theming config changed</a></li>
+<li><a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-0808406b2b1d4f0adf09886756c1d9a6">_configurator route no longer exists</a></li>
+<li><a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-da1af97fca8a5fcb6fb7053584105ba7">security.yml: csrf_provider removed, remember_me &#8220;key&#8221; is now &#8220;secret&#8221;</a></li>
+<li><a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-f5fc7a0c95a8ac0821192d8eb102a87e">YAML files now expect quotes where they previously didn&#8217;t</a></li>
+<li><a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-979c1ea9a70b1c9ebd5fbd6c35c8474d">Forms are now created using class names instead of instances</a></li>
+<li><a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-961fbeaec2c2c4aa63d12a00cded0e4a">Form types now work with class names instead of strings</a></li>
+<li><a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-ee3b627c49c65de9fe80561cfb0d746a">Service definitions for repositories changed a lot</a></li>
+<li><a href="https://github.com/journeymonitor/control/compare/64c9f63...5be5f63?diff=split&#038;name=5be5f63#diff-bf0e70bcef1a5d5b2f87289220a51108R18">This makes the ominous <em>Unknown &#8220;asset&#8221; function in &#8220;@Twig/Exception/exception_full.html.twig</em> error go away</a></li>
+</ul>
+</p>
+
+<p>
+Finding the root cause of some of the errors did cost some nerves, but was worth it. At the end, the number of changes that had to be turned out tractable. <a href="http://journeymonitor.com/">JourneyMonitor</a> now happily hums along on top of Symfony 3.0.
+</p></div>
+            <div id="twitterfollow">
+                <span class="note">If you would like to be informed on updates to this post, just <a href="https://twitter.com/manuelkiessling">follow @manuelkiessling</a></span>
+            </div>
+                    </div>
+        <div class="clearboth"><!-- --></div>
+    </div>
+
+    <a name="comments" />
+    
+<!-- You can start editing here. -->
+
+<div id="comment-wrapper">
+
+                     <div id="disqus_thread"></div>
+                     <script type="text/javascript">
+                      var disqus_shortname = 'thelogbookofmanuelkiessling';
+                      var disqus_identifier = '1338';
+                      var disqus_url = 'http://manuel.kiessling.net/2015/12/07/upgrading-a-symfony-project-from-2-6-to-3-0/';
+                      (function() {
+                       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                       dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                     </script>
+                     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div> <!-- end of comment-wrapper -->
+
+
+            <a name="about"></a>
+            <div id="footer">
+                <div class="image">
+                    <img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=640" width="160" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
+                </div>
+                <div class="text">
+                    <p>
+                        This is the homepage and blog of <a href="https://plus.google.com/100272082905360445612?rel=author">Manuel&nbsp;Kiessling</a>.
+                    </p>
+                    <p>
+                        I'm a software architect, test driven developer, linux admin, agilist, author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>, and father of two.
+                    </p>
+                    <p>
+                        Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ 
+            ga('create', 'UA-2127388-5', 'kiessling.net');
+            ga('require', 'displayfeatures');
+            ga('require', 'linkid', 'linkid.js');
+            ga('send', 'pageview');
+        </script>
+
+    </body>
+</html>

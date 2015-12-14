@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+    <head profile="http://gmpg.org/xfn/11">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Adding a Play2 application as a sub-project to an existing sbt project » The Log Book of Manuel Kiessling</title>
+        <meta name="description" content="Adding a Play2 application as a sub-project to an existing sbt project » Writings about agile software development and system operation topics" />
+        <link href="http://fonts.googleapis.com/css?family=Roboto:300,100" rel="stylesheet" type="text/css">
+        <link href="http://fonts.googleapis.com/css?family=Roboto+Slab:300" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="/wp-content/themes/wu-wei/style.css" type="text/css" />
+        <link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling RSS Feed" href="/feed/" />
+        <link rel="alternate" type="application/atom+xml" title="The Log Book of Manuel Kiessling Atom Feed" href="/feed/atom/" />
+    </head>
+    
+    <body id="top" class="">
+        <div class="full-column">
+            <div class="center-column">
+                <ul id="menu">
+                    <li><a href="/" ><span></span><br />HOME</a></li>
+                    <li><a href="/projects/"><span></span><br />PROJECTS</a></li>
+                    <li><a href="/contact/"><span></span><br />CONTACT</a></li>
+                    <li><a href="/feed/"><span></span><br />RSS</a></li>
+                    <li><a href="#about"><span></span><br />ABOUT</a></li>
+                </ul>
+                <div class="clearboth"><!-- --></div>
+            </div>
+        </div>
+    <div class="center-column">
+        <div id="header">
+            <div class="blog-name"><a href="/">The Log Book of Manuel Kiessling</a></div>
+        </div>
+
+
+    <div itemscope itemtype="http://schema.org/BlogPosting" class="post-1352 post hentry category-english-articles category-software category-tutorial" id="post-1352">
+        <div class="post-info single">
+            <h1><a itemprop="url" href="/2015/12/09/adding-a-play2-application-as-a-sub-project-to-an-existing-sbt-project/" rel="bookmark" title="Adding a Play2 application as a sub-project to an existing sbt project"><span itemprop="name">Adding a Play2 application as a sub-project to an existing sbt project</span></a></h1>
+            <div itemprop="datePublished" content="2015-12-09" class="timestamp">December 9, 2015</div>
+            <div class="clearboth"><!-- --></div>
+        </div>
+
+        <div class="post-content single">
+            <div itemProp="articleBody"><h2>About this post</h2>
+
+<p>
+Already working on an sbt-based Scala project with two sub-projects, I wanted to create a third sub-project, a Play2 application. The following describes what worked for me.
+</p>
+
+
+<h2>Creating the sub-project structure</h2>
+
+<p>
+Before adding the third sub-project, my sbt project structure looked like this:
+</p>
+
+<p>
+<pre><code>importer/
+└  src/
+   ├  main/
+   └  test/
+spark/
+└  src/
+   ├  main/
+   └  test/
+project/
+└  plugins.sbt
+
+build.sbt</code></pre>
+</p>
+
+<p>
+Within <code class="inline">build.sbt</code>, the sub-projects where declared as follows (shortened for brevity):
+</p>
+
+<p>
+<pre><code>name := "journeymonitor-analyze"
+
+val commonSettings = Seq(
+  organization := "com.journeymonitor",
+  version := "0.1"
+)
+
+lazy val testDependencies = Seq (
+  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+)
+
+lazy val cassandraDependencies = Seq (
+  "com.datastax.cassandra" % "cassandra-driver-core" % "2.1.8",
+  "com.chrisomeara" % "pillar_2.11" % "2.0.1"
+)
+
+lazy val spark = project
+  .settings(commonSettings:_*)
+  .settings(libraryDependencies ++= (testDependencies))
+
+lazy val importer = project
+  .settings(commonSettings:_*)
+  .settings(libraryDependencies ++= (testDependencies ++ cassandraDependencies))
+
+lazy val main = project.in(file("."))
+  .aggregate(spark, importer)</code></pre>
+</p>
+
+<p>
+I wanted to name the new sub-project &#8220;api&#8221;, and it should reside in a folder of the same name.
+</p>
+
+<p>
+First, I installed the TypeSafe Activator onto my Mac OS X system via <code class="inline">brew install typesafe-activator</code>. Next, I changed to the root folder of my project, and ran <code class="inline">activator new api play-scala</code>. This resulted in the following structure:
+</p>
+
+<p>
+<pre><code>api/
+├  build.sbt
+├  api/
+├  conf/
+├  public/
+├  test/
+└  project/
+   └  plugins.sbt
+importer/
+└  src/
+   ├  main/
+   └  test/
+spark/
+└  src/
+   ├  main/
+   └  test/
+project/
+└  plugins.sbt
+
+build.sbt</code></pre>
+</p>
+
+<p>
+Next, I added the content of the newly added <code class="inline">api/project/plugins.sbt</code> to the existing <code class="inline">project/plugins.sbt</code> file, and removed the former. Then, I extended the existing <code class="inline">build.sbt</code> file as follows:
+</p>
+
+<p>
+<pre><code>name := "journeymonitor-analyze"
+
+val commonSettings = ...
+
+lazy val testDependencies = ...
+
+lazy val cassandraDependencies = ...
+
+lazy val spark = project ...
+
+lazy val importer = project ...
+
+lazy val api = project
+  .settings(commonSettings:_*)
+  .settings(assemblyJarName in assembly := "journeymonitor-analyze-api-assembly.jar")
+
+lazy val main = project.in(file("."))
+  .aggregate(spark, importer, api)</code></pre>
+</p>
+
+<p>
+This declares the <em>api</em> sub-project and applies the <em>commonSettings</em> to it, but doesn&#8217;t configure it further. This happens via the sub-project specific configuration in file <code class="inline">api/build.sbt</code>:
+</p>
+
+<p>
+<pre><code>name := """api"""
+
+version := "1.0-SNAPSHOT"
+
+lazy val api = (project in file(".")).enablePlugins(PlayScala)
+
+scalaVersion := "2.11.7"
+
+libraryDependencies ++= Seq(
+  jdbc,
+  cache,
+  ws,
+  specs2 % Test
+)
+
+resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
+
+routesGenerator := InjectedRoutesGenerator</code></pre>
+</p>
+
+<p>
+The above shows two changes that were necessary: on line 5, the name of the val for the project had to be changed from <em>root</em> to <em>api</em>, and on line 7, I changed the <em>scalaVersion</em> from <em>&#8220;2.11.6&#8243;</em> to <em>&#8220;2.11.7&#8243;</em>.
+</p>
+
+<p>
+With this, I was now able to run <code class="inline">sbt</code> from the root folder, switch to the new sub-project within sbt via <code class="inline">project api</code>, and successfully run the Play2 test suite via <code class="inline">test</code>.
+</p>
+
+<p>
+<a href="https://github.com/journeymonitor/analyze/commit/4a899b07cb9637142b849975babec8579a5a066f">Commit 4a899b0 on the journeymonitor/analyze repo</a> on Github shows the differences before and after adding the new sub-project.
+</p></div>
+            <div id="twitterfollow">
+                <span class="note">If you would like to be informed on updates to this post, just <a href="https://twitter.com/manuelkiessling">follow @manuelkiessling</a></span>
+            </div>
+                    </div>
+        <div class="clearboth"><!-- --></div>
+    </div>
+
+    <a name="comments" />
+    
+<!-- You can start editing here. -->
+
+<div id="comment-wrapper">
+
+                     <div id="disqus_thread"></div>
+                     <script type="text/javascript">
+                      var disqus_shortname = 'thelogbookofmanuelkiessling';
+                      var disqus_identifier = '1352';
+                      var disqus_url = 'http://manuel.kiessling.net/2015/12/09/adding-a-play2-application-as-a-sub-project-to-an-existing-sbt-project/';
+                      (function() {
+                       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                       dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                     </script>
+                     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div> <!-- end of comment-wrapper -->
+
+
+            <a name="about"></a>
+            <div id="footer">
+                <div class="image">
+                    <img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=640" width="160" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
+                </div>
+                <div class="text">
+                    <p>
+                        This is the homepage and blog of <a href="https://plus.google.com/100272082905360445612?rel=author">Manuel&nbsp;Kiessling</a>.
+                    </p>
+                    <p>
+                        I'm a software architect, test driven developer, linux admin, agilist, author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>, and father of two.
+                    </p>
+                    <p>
+                        Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ 
+            ga('create', 'UA-2127388-5', 'kiessling.net');
+            ga('require', 'displayfeatures');
+            ga('require', 'linkid', 'linkid.js');
+            ga('send', 'pageview');
+        </script>
+
+    </body>
+</html>
