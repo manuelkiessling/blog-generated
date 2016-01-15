@@ -165,7 +165,7 @@ This declares the <em>api</em> sub-project and applies the <em>commonSettings</e
 
 version := "1.0-SNAPSHOT"
 
-lazy val api = (project in file(".")).enablePlugins(PlayScala)
+enablePlugins(PlayScala)
 
 scalaVersion := "2.11.7"
 
@@ -182,7 +182,7 @@ routesGenerator := InjectedRoutesGenerator</code></pre>
 </p>
 
 <p>
-The above shows two changes that were necessary: on line 5, the name of the val for the project had to be changed from <em>root</em> to <em>api</em>, and on line 7, I changed the <em>scalaVersion</em> from <em>&#8220;2.11.6&#8243;</em> to <em>&#8220;2.11.7&#8243;</em>.
+The above shows two changes that were necessary: on line 5, the <em>val</em> declaration needs to be removed, leaving only the <em>enablePlugins</em> call, and on line 7, I changed the <em>scalaVersion</em> from <em>&#8220;2.11.6&#8243;</em> to <em>&#8220;2.11.7&#8243;</em>.
 </p>
 
 <p>

@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+    <head profile="http://gmpg.org/xfn/11">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Die Architektur der Galeria.de Plattform im Kontext der Produktentwicklungsorganisation » The Log Book of Manuel Kiessling</title>
+        <meta name="description" content="Die Architektur der Galeria.de Plattform im Kontext der Produktentwicklungsorganisation » Writings about agile software development and system operation topics" />
+        <link href="http://fonts.googleapis.com/css?family=Roboto:300,100" rel="stylesheet" type="text/css">
+        <link href="http://fonts.googleapis.com/css?family=Roboto+Slab:300" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="/wp-content/themes/wu-wei/style.css" type="text/css" />
+        <link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling RSS Feed" href="/feed/" />
+        <link rel="alternate" type="application/atom+xml" title="The Log Book of Manuel Kiessling Atom Feed" href="/feed/atom/" />
+    </head>
+    
+    <body id="top" class="">
+        <div class="full-column">
+            <div class="center-column">
+                <ul id="menu">
+                    <li><a href="/" ><span></span><br />HOME</a></li>
+                    <li><a href="/projects/"><span></span><br />PROJECTS</a></li>
+                    <li><a href="/contact/"><span></span><br />CONTACT</a></li>
+                    <li><a href="/feed/"><span></span><br />RSS</a></li>
+                    <li><a href="#about"><span></span><br />ABOUT</a></li>
+                </ul>
+                <div class="clearboth"><!-- --></div>
+            </div>
+        </div>
+    <div class="center-column">
+        <div id="header">
+            <div class="blog-name"><a href="/">The Log Book of Manuel Kiessling</a></div>
+        </div>
+
+
+    <div itemscope itemtype="http://schema.org/BlogPosting" class="post-1371 post hentry category-deutsche-artikel" id="post-1371">
+        <div class="post-info single">
+            <h1><a itemprop="url" href="/2016/01/02/die-architektur-der-galeria-de-plattform-im-kontext-der-produktentwicklungsorganisation/" rel="bookmark" title="Die Architektur der Galeria.de Plattform im Kontext der Produktentwicklungsorganisation"><span itemprop="name">Die Architektur der Galeria.de Plattform im Kontext der Produktentwicklungsorganisation</span></a></h1>
+            <div itemprop="datePublished" content="2016-01-02" class="timestamp">January 2, 2016</div>
+            <div class="clearboth"><!-- --></div>
+        </div>
+
+        <div class="post-content single">
+            <div itemProp="articleBody"><h2 id="ber-diesen-artikel">Über diesen Artikel</h2>
+
+<p>Im Kontext des <a href="http://galeria-kaufhof.github.io">GALERIA Kaufhof Technology Blogs</a> stellt der vorliegende Artikel ein Update und eine Erweiterung des <a href="http://galeria-kaufhof.github.io/general/2014/09/20/jump-ein-technologiesprung-bei-galeria-kaufhof/">Beitrags von September 2014</a> dar.</p>
+
+<p>Schon damals existierte ein klar definiertes Set an Vorgaben, welches den Rahmen für Makro- und Mikroarchitekturfragen
+gesteckt hat und das Projekt in Hinblick auf Fragen der System- und Softwarearchitektur leitet.</p>
+
+<p>In den vergangenen Tagen haben wir begonnen, ausgehend von den Erfahrungen bis heute und unserer jetzigen Perspektive,
+einige der Grundlagen unserer Architektur noch einmal neu aufzuschreiben.</p>
+
+<p>Anstoß hierzu lieferte unter anderem der Launch von http://scs-architecture.org/, einem (noch überschaubaren) Portal,
+welches das Konzept der Self-contained Systems, die den zentralen Baustein auch unserer Architektur bilden, präsentiert.</p>
+
+<p>Inhaltlich haben wir das Konzept SCS seit langem gelebt, aber semantisch war der Ansatz auf unserer Architekturlandkarte
+nicht klar verortet. Mit der Überarbeitung haben nun alle zentralen Bausteine einen klaren Platz und einen klaren Namen.</p>
+
+<p>Bei einem Projekt, welches seit nunmehr fast 2 Jahren läuft und seit fast einem Jahr im Betriebs- und
+Weiterentwicklungsmodus ist, wird auch die Frage des fachlichen Wachstums spannend. So klar die bestehende Struktur ist
+- was sind die architektonischen Leitlinien, wenn der fachliche Themenumfang wächst und die Plattform sich
+inhaltich weiterentwickelt? Schliesslich stehen wir noch am Anfang unserer Mission, MCR-Marktführer in Europa zu werden.</p>
+
+<p>Zusätzlich klingt in diesem Dokument auch das Verhältnis zwischen Produktarchitektur und
+Produktentwicklungsorganisation stärker an (ohne dabei den Anspruch zu erheben, die Aufbau- und Ablauforganisation der
+Galeria.de Produktentwicklung vollumfänglich aufzuzeigen &#8211; dies muss im Zuge anderer Beiträge erfolgen).</p>
+
+<h2 id="die-visualisierung">Die Visualisierung</h2>
+
+<p>Einen Überblick über die verschiedenen Architekturkomponenten und ihr Verhältnis zueinander soll das folgende Schaubild
+ermöglichen:</p>
+
+<p>
+<a href="http://manuel.kiessling.net/images/Ueberblick_Architektur_GALERIA_Kaufhof_Online_Plattform.svg"><img width="100%" src="http://manuel.kiessling.net/images/Ueberblick_Architektur_GALERIA_Kaufhof_Online_Plattform.svg" /></a>
+<br />
+(Zum Vergößern klicken)
+</p>
+
+<h2 id="grundlagen-der-architektur">Grundlagen der Architektur</h2>
+
+<p>Zwei Grundideen bilden das Fundament der architektonischen Strukturierung: Eine vertikale Orientierung der High-Level
+Komponenten in sogenannten Self-contained Systems, und eine fachliche motivierte Trennung und Gruppierung dieser
+Komponenten in sogenannten Domänen.</p>
+
+<p>Das Verhältnis von Domänen zu Systemen ist wie folgt: eine Domäne liegt immer dann vor, wenn ein oder
+mehrere Systeme einen logisch zusammenhängenden Ausschnitt der fachlichen Use-Cases eines Benutzers vollumfänglich
+abbilden. Konkretes Beispiel: die Domäne SEARCH bei Galeria.de umfasst diejenigen Systeme, welche von der
+Benutzeroberfläche bis zur Datenhaltung das Suchen und Finden von Produkten für den Benutzer von Galeria.de ermöglichen.</p>
+
+<p>Der Domäne SEARCH ist also mindestens ein System zugeordnet, welches sowohl die Weboberflächen-Elemente (wie zum
+Beispiel die Suchbox mit Auto-Complete, Suchergebnisseite usw.) bereitstellt, als auch den Import von Produktdaten und
+deren Überführung in eine spezialisierte Such-Datenbank implementiert.</p>
+
+<p>Ein System wiederum ist eine Sammlung von Anwendungen mit gemeinsamer Datenhaltung, welche in unserem Fall auch alle
+innerhalb desselben Code Repositories liegen und auch gemeinsam deployed werden &#8211; bei einer Scala Domäne könnte es sich
+also konkret um ein <a href="http://www.scala-sbt.org/0.13/tutorial/Multi-Project.html">sbt Multiprojekt</a> bestehend aus einer
+Play2 Anwendung für das Webinterface und zusätzlich Anwendungen auf Basis von Akka für die Hintergrundverarbeitung von
+Daten handeln. Und unsere Ruby Domäne CONTROL wiederum betreibt ein System, welches sich intern stark in Richtung einer
+Microservice-basierten Struktur entwickelt hat und als gemeinsame Datenhaltung unter anderem einen
+MessageBus-orientierten Ansatz verfolgt.</p>
+
+<p>Miteinander sprechen diese Systeme &#8211; innerhalb einer Domänengrenze und darüber hinaus &#8211; nur über definierte
+Schnittstellen (da sie keine Daten teilen dürfen), und dies unter Vermeidung von verteilten Callstacks.</p>
+
+<p>In gewissem Sinne wird hier das bekannte Paradigma von loser Kopplung und hoher Kohäsion, welches klassischerweise auf
+Ebene eines einzelnen Softwaresystems betrachtet wird, auf einer höheren Ebene fortgesetzt.</p>
+
+<p>Die Kohäsion entsteht, weil fachlich verwandte Themen vereint werden in den Self-contained Systems einer Domäne. Die
+lose Kopplung wird abgebildet dadurch, dass die verschiedenen Systeme nur über Schnittstellen miteinander kommunizieren.</p>
+
+<p>Damit gilt für das Gesamtsystem dieselbe Eigenschaft, die auch innerhalb eines Softwaresystems gilt, welches nach diesem
+Paradigma entworfen wurde: Änderungen in einer Komponente bedingen nur dann Änderungen in einer anderen Komponente,
+wenn die Änderungen die Schnittstelle betreffen.</p>
+
+<p>Dies sorgt für hohe Robustheit des Gesamtsystems (ohne verteilte Callstacks und dank Replikation von Daten können andere
+Systeme weiter operieren, auch wenn ein angebundenes System nicht-verfügbar wird), ermöglicht weitgehend autarkes
+Arbeiten pro Domäne (nicht zuletzt in Hinblick auf die Releasefrequenz), bietet die Möglichkeit, Systeme nach ihren
+unterschiedlichen Anforderungen auch unterschiedlich zu skalieren, und erlaubt eine in Hinblick auf die erforderliche
+Funktionalität passgenaue Wahl der Technologien pro System. Weitere Informationen hierzu liefert
+<a href="http://scs-architecture.org">scs-architecture.org</a>.</p>
+
+<p>Das Konzept der Domäne ist weiterhin der Brückenschlag zwischen Architektur und Aufbauorganisation. Optimalerweise steht
+hinter jeder Domäne ein Team &#8211; in unserem Fall ein Scrum-Team &#8211; welches von Anforderungsmanagent über
+Software-Entwicklung und QA bis hin zum Betrieb die Domäne mit ihren Systemen fachlich und technisch vollumfänglich
+“owned”.</p>
+
+<h2 id="domnen-und-ihre-systeme">Domänen und ihre Systeme</h2>
+
+<p>Warum dann noch die Unterscheidung zwischen Domäne und System? Warum nicht 1 Domäne gleich 1 System? An dieser Stelle
+findet derzeit eine Evolution unseres bisherigen Modells statt, in dem die Begriffe bisher oft synonym verwendet
+wurden.</p>
+
+<p>Die Grund für eine Unterscheidung ist, dass ein Komponentenschnitt einerseits fachlich motiviert sein kann, andererseits
+technisch. Eine rein technische Motivation führt hierbei zu einem neuen System, eine fachliche Motivation zu einer neuen
+Domäne. Der Begriff der “technischen Motivation” ist allerdings recht weit gefasst &#8211; es muss nicht zwangsläufig die
+Einführung einer neuen Technologie (Programmiersprache, Framework, Datenbanksystem usw.) vorliegen: selbst bei
+gleichbleibendem Technologiestack kann es die technische Motivation geben, eine weiterhin saubere Codebase gewährleisten
+zu wollen oder feingranularer releasen zu wollen.</p>
+
+<p>Für beide Motivationen gibt es derzeit Beispiele im Projekt. Das Team der bestehenden Domäne EXPLORE, welches sich
+bisher vornehmlich um Teaser und Störer im Shop kümmert, soll in Zukunft die Verantwortung übernehmen für die
+Infrastruktur von Inhalten auf Galeria.de, die nicht direkt mit dem Shopping-Erlebnis des Kunden zu tun haben,
+beispielsweise Presseseiten und Unternehmensinformationen sowie Inhalte rund um das Recruiting.</p>
+
+<p>Abgesehen davon, dass hier auf Basis eines Open Source CMS auch technisch eine neue Lösung entsteht, wird schnell klar,
+dass die bisherige EXPLORE Fachlichkeit verlassen wird. Daher begründet das Team derzeit eine neue Domäne CONTENT. Auch
+wenn hier vorerst dieselben handelnden Personen an Bord sind, sehen wir das zu behandelnde Thema aufgrund der
+andersartigen fachlichen Ausrichtung als neue fachliche Einheit.</p>
+
+<p>Anders im Team ORDER, welches sich um alle Fachlichkeiten rund um das Thema Bestellungen kümmert. Hier zeichnet sich ab,
+dass es sinnvoll sein könnte, die Webshop-orientierten Aspekte des Bestellens von der nachgelagerten Bestellverarbeitung
+zu trennen &#8211; sinnvoll zum Beispiel vor dem Hintergrund der möglicherweise sehr unterschiedlichen
+Skalierungsanforderungen für den Shop einerseits und die nachgelagerte Verarbeitung von Bestellungen andererseits;
+weiterhin ist zu erwarten, dass eine Entkopplung dieser beiden Aspekte auch in Hinblick auf Releasezyklen und Sauberkeit
+der lokalen Architektur Vorteile bringt. Self-contained Systems sind stets Monolithen &#8211; das ist nicht per se negativ,
+aber jeder Monolith kann irgendwann zu groß werden; “zu groß” ist eine sehr subjektive Eigenschaft, aber ein Maßstab ist
+sicherlich die mittlerweile weitverbreitete Formulierung “passt nicht mehr vollständig in den Kopf eines Teammitglieds”.</p>
+
+<h2 id="systeme-und-umgebungen">Systeme und Umgebungen</h2>
+
+<p>Das Schaubild spricht weiterhin von Umgebungen. Gemeint ist damit der Kontext, in dem die Anwendungen von Systemen
+laufen können. Aufgrund der vertikalen Orientierung von Systemen ist der Ausführungskontext ihrer Anwendungen potentiell
+verteilt: Eine Play2-basierte Scala Anwendung wird auf den Servern von Galeria.de ausgeführt, also in der sogenannten
+Plattformumgebung &#8211; diese Backend-Anwendung liefert aber vielleicht eine Single-Page Application oder eine andere Form
+von JavaScript-Anwendung aus; diese läuft dann im Browser des Benutzers, also in dessen Umgebung.</p>
+
+<p>Weiterhin sprechen viele Systeme der Plattformumgebung mit Fremdsystemen, im Falle von Galeria.de beispielsweise mit
+Systemen der Warenwirtschaft. Diese werden ausgeführt in einer Fremdumgebung, also einer Umgebung die technisch und
+organisatorisch außerhalb der Kontrolle von Galeria.de liegt.</p>
+
+<h2 id="schnittstellen">Schnittstellen</h2>
+
+<p>Der Verzicht auf eine gemeinsame Datenhaltung bedingt klar definierte und zuverlässig arbeitende Schnittstellen.
+Leitbild ist für uns das World Wide Web, weshalb wir auf HTTP als Transportprotokoll setzen und unsere Schnittstellen
+nach den Prinzipien von REST gestalten.</p>
+
+<p>Wir unterscheiden hierbei 4 Typen von Schnittstellen:</p>
+
+<ul>
+  <li>Typ “Web”
+    <ul>
+      <li>baut auf HTTP auf</li>
+      <li>RESTful</li>
+      <li>HATEOASful</li>
+      <li>benutzerorientierter Media-Type</li>
+      <li>klassischerweise die von einer Backend-Anwendung generierte, HTML-basierte Webseite (oder Webseiten-Elemente, welche
+durch die Frontend-Integration per SSI eingebunden werden)</li>
+    </ul>
+  </li>
+  <li>Typ “REST”
+    <ul>
+      <li>baut auf HTTP auf</li>
+      <li>RESTful</li>
+      <li>HATEOASful</li>
+      <li>maschinenorientierter Media-Type</li>
+      <li>klassischerweise der durch eine Backend-Anwendung bereitgestellte JSON-Webservice, welcher von JavaScript
+Anwendungen, Mobile Apps, oder Fremdanwendungen genutzt wird</li>
+    </ul>
+  </li>
+  <li>Typ “Multipart”
+    <ul>
+      <li>baut auf HTTP auf</li>
+      <li>RESTful</li>
+      <li>maschinenorientierter Media-Type</li>
+      <li>Auf HTTP multipart basierende Feed- oder Snapshot-Schnittstelle für die Synchronisation von Massendaten und für
+Event-Sourcing</li>
+    </ul>
+  </li>
+  <li>Typ “Other”
+    <ul>
+      <li>Schnittstellen, die nicht den anderen Typen entsprechen: FTP, SOAP, usw. Unterschiedlichste Transportprotokolle und
+Medientypen sind denkbar.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="zusammenfassung">Zusammenfassung</h2>
+
+<p>Der Architekturansatz von vertikal orientierten Self-contained Systems gepaart mit fachlich geschnittenen Domänen und
+HTTP-basierten Schnittstellen bildet den Rahmen für alle Produktentwicklungsinitiativen von Galeria.de.</p>
+
+<p>Dieser Rahmen ermöglicht optimale Kundenorientierung durch fachliche Spezialisierung in den Domänenteams, ein robustes
+Gesamtprodukt dank der Entkopplung von Datenhaltung und Callstacks, und eine effektive Weiterentwicklung dank autarker
+Releaseprozesse und einem auf die Schnittstellen beschränkten Abstimmungsprozess in den Softwareentwicklungsteams.</p></div>
+            <div id="twitterfollow">
+                <span class="note">If you would like to be informed on updates to this post, just <a href="https://twitter.com/manuelkiessling">follow @manuelkiessling</a></span>
+            </div>
+                    </div>
+        <div class="clearboth"><!-- --></div>
+    </div>
+
+    <a name="comments" />
+    
+<!-- You can start editing here. -->
+
+<div id="comment-wrapper">
+
+                     <div id="disqus_thread"></div>
+                     <script type="text/javascript">
+                      var disqus_shortname = 'thelogbookofmanuelkiessling';
+                      var disqus_identifier = '1371';
+                      var disqus_url = 'http://manuel.kiessling.net/2016/01/02/die-architektur-der-galeria-de-plattform-im-kontext-der-produktentwicklungsorganisation/';
+                      (function() {
+                       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                       dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                     </script>
+                     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div> <!-- end of comment-wrapper -->
+
+
+            <a name="about"></a>
+            <div id="footer">
+                <div class="image">
+                    <img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=640" width="160" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
+                </div>
+                <div class="text">
+                    <p>
+                        This is the homepage and blog of <a href="https://plus.google.com/100272082905360445612?rel=author">Manuel&nbsp;Kiessling</a>.
+                    </p>
+                    <p>
+                        I'm a software architect, test driven developer, linux admin, agilist, author of <a href="http://www.nodebeginner.org/">NodeBeginner.org</a>, and father of two.
+                    </p>
+                    <p>
+                        Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ 
+            ga('create', 'UA-2127388-5', 'kiessling.net');
+            ga('require', 'displayfeatures');
+            ga('require', 'linkid', 'linkid.js');
+            ga('send', 'pageview');
+        </script>
+
+    </body>
+</html>
