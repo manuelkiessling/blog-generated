@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+    <head profile="http://gmpg.org/xfn/11">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Puppet: Evaluating defined types for each element in an array in a non-brittle way » The Log Book of Manuel Kiessling</title>
+        <meta name="description" content="Puppet: Evaluating defined types for each element in an array in a non-brittle way » Covers topics on architecting, building, deploying and running software and systems for the web based on open source tools with agile methodologies." />
+        <link href="http://fonts.googleapis.com/css?family=Roboto:300,100" rel="stylesheet" type="text/css">
+        <link href="http://fonts.googleapis.com/css?family=Roboto+Slab:300" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="/wp-content/themes/wu-wei/style.css" type="text/css" />
+        <link rel="alternate" type="application/rss+xml" title="The Log Book of Manuel Kiessling RSS Feed" href="/feed/" />
+        <link rel="alternate" type="application/atom+xml" title="The Log Book of Manuel Kiessling Atom Feed" href="/feed/atom/" />
+    </head>
+    
+    <body id="top" class="">
+        <div class="full-column">
+            <div class="center-column">
+                <ul id="menu">
+                    <li><a href="/" ><span></span><br />HOME</a></li>
+                    <li><a href="https://github.com/manuelkiessling"><span></span><br />PROJECTS</a></li>
+                    <li><a href="https://leanpub.com/u/manuelkiessling"><span></span><br />BOOKS</a></li>
+                    <li><a href="/contact/"><span></span><br />CONTACT</a></li>
+                    <li><a href="/feed/"><span></span><br />RSS</a></li>
+                    <li><a href="#about"><span></span><br />ABOUT</a></li>
+                </ul>
+                <div class="clearboth"><!-- --></div>
+            </div>
+        </div>
+    <div class="center-column">
+        <div id="header">
+            <div class="blog-name"><a href="/">The Log Book of Manuel Kiessling</a></div>
+        </div>
+
+
+    <div itemscope itemtype="http://schema.org/BlogPosting" class="post-1441 post hentry category-english-articles category-software category-tutorial" id="post-1441">
+        <div class="post-info single">
+            <h1><a itemprop="url" href="/2016/02/04/puppet-evaluating-defined-types-for-each-element-in-an-array-in-a-non-brittle-way/" rel="bookmark" title="Puppet: Evaluating defined types for each element in an array in a non-brittle way"><span itemprop="name">Puppet: Evaluating defined types for each element in an array in a non-brittle way</span></a></h1>
+            <div itemprop="datePublished" content="2016-02-04" class="timestamp">February 4, 2016</div>
+            <div class="clearboth"><!-- --></div>
+        </div>
+
+        <div class="post-content single">
+            <div itemProp="articleBody"><p>
+In <a href="https://github.com/journeymonitor/infra/blob/2675efcc91f89ecc1d521e92af10629ed7c85a59/puppet/modules/cronjobs/manifests/init.pp">one of the JourneyMonitor puppet manifests</a>, we have a <em>defined type</em> that allows us to dynamically create cronjob files on target machines:
+</p>
+
+<p>
+<pre><code>define createCronjobFile {
+  file { "/etc/cron.d/journeymonitor-${name}":
+    owner   => "root",
+    group   => "root",
+    mode    => "0644",
+    content => template("cronjobs/etc/cron.d/journeymonitor-${name}.erb"),
+  }
+}</code></pre>
+</p>
+
+<p>
+Let&#8217;s assume that we have a system where we want to end up having cronjobs <code class="inline">/etc/cron.d/journeymonitor-foo</code> and <code class="inline">/etc/cron.d/journeymonitor-bar</code>.
+</p>
+
+<p>
+This is achieved by defining an array in Hiera like this:
+</p>
+
+<p>
+<pre><code>cronjobs:
+  - foo
+  - bar</code></pre>
+</p>
+
+<p>
+and then passing it to <code class="inline">createCronjobFile</code> upon declaration:
+</p>
+
+<p>
+<pre><code>
+$cronjobs = hiera_array("cronjobs");
+
+createCronjobFile { $cronjobs: }</code></pre>
+</p>
+
+<p>
+The nice thing here is that Puppet unfolds the array for us, that is, we do not need to loop over the array entries explicitly &#8211; instead, <code class="inline">createCronjobFile</code> is automatically evaluated once for each entry in the array.
+</p>
+
+<p>
+(In case this isn&#8217;t clear: passing a value before the colon when declaring a defined type makes this value available as parameter <code class="inline">$name</code> in the defined type.)
+</p>
+
+<p>
+However, this implementation is brittle. If, for a given target system, no <em>cronjobs</em> array has been defined in the Hiera structure, then the above manifest will fail with <code class="inline">Could not find data item cronjobs in any Hiera data file and no default supplied</code>.
+</p>
+
+<p>
+The solution is to make <code class="inline">hiera_array</code> return an empty array if <em>cronjobs</em> is not defined (by providing the empty array <code class="inline">[]</code> as the second parameter to <code class="inline">hiera_array</code>), and to check for an empty array before declaring <code class="inline">createCronjobFile</code>:
+</p>
+
+<p>
+<pre><code>$cronjobs = hiera_array("cronjobs");
+
+if $cronjobs != [] {
+  createCronjobFile { $cronjobs: }
+}</code></pre>
+</p>
+
+<p>
+The <code class="inline">if</code> clause is necessary because an empty array unfortunately doesn&#8217;t result in <code class="inline">createCronjobFile</code> being declared zero times, as one might expect &#8211; it is declared with the empty string for parameter <code class="inline">$name</code>, which isn&#8217;t what we want.
+</p></div>
+            <div id="twitterfollow">
+                <span class="note">If you would like to be informed on updates to this post, just <a href="https://twitter.com/manuelkiessling">follow @manuelkiessling</a></span>
+            </div>
+                    </div>
+        <div class="clearboth"><!-- --></div>
+    </div>
+
+    <a name="comments" />
+    
+<!-- You can start editing here. -->
+
+<div id="comment-wrapper">
+
+                     <div id="disqus_thread"></div>
+                     <script type="text/javascript">
+                      var disqus_shortname = 'thelogbookofmanuelkiessling';
+                      var disqus_identifier = '1441';
+                      var disqus_url = 'http://manuel.kiessling.net/2016/02/04/puppet-evaluating-defined-types-for-each-element-in-an-array-in-a-non-brittle-way/';
+                      (function() {
+                       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                       dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                     </script>
+                     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div> <!-- end of comment-wrapper -->
+
+
+            <a name="about"></a>
+            <div id="footer">
+                <div class="image">
+                    <img src="http://www.gravatar.com/avatar/8b50d5d8199a12f00cfbfd1061e224a9.png?s=640" width="160" alt="Photograph of Manuel Kiessling" title="Manuel Kiessling" />
+                </div>
+                <div class="text">
+                    <p>
+                        This is the homepage and blog of <a href="https://plus.google.com/100272082905360445612?rel=author">Manuel&nbsp;Kiessling</a>.
+                    </p>
+                    <p>
+                        I'm a software architect, test driven developer, linux admin, agilist, <a href="https://leanpub.com/u/manuelkiessling">book author</a>, and father of two.
+                    </p>
+                    <p>
+                        Follow me on Twitter: <a href="http://twitter.com/manuelkiessling">@manuelkiessling</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ 
+            ga('create', 'UA-2127388-5', 'kiessling.net');
+            ga('require', 'displayfeatures');
+            ga('require', 'linkid', 'linkid.js');
+            ga('send', 'pageview');
+        </script>
+
+    </body>
+</html>
