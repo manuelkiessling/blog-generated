@@ -92,7 +92,7 @@ We are now going to integrate the <a href="https://github.com/datastax/java-driv
 This means adding the Cassandra driver as a dependency to file <code class="inline">build.sbt</code>, creating a utility class for connection URIs in file <code class="inline">app/cassandra/CassandraConnectionUri.scala</code>, and adding an object that handles database connections in file <code class="inline">app/cassandra/CassandraConnector.scala</code>. See <a href="https://github.com/manuelkiessling/play2-compiletime-cassandra-di/tree/0fa30e4874b1398f1557dbddd2346393d15c41e3">the resulting codebase on GitHub at 0fa30e4</a> or view <a href="https://github.com/manuelkiessling/play2-compiletime-cassandra-di/commit/0fa30e4874b1398f1557dbddd2346393d15c41e3?diff=split">the differences from the previous version of the codebase</a>.
 </p>
 
-<h2></h2>
+<h2>Creating a repository</h2>
 <p>
 With this, we can finally start to work on the actual Cassandra repository and learn how to inject it into a controller.
 </p>
@@ -250,6 +250,7 @@ class ProductsRepository(session: Session)
 </code></pre>
 </p>
 
+<h2>Injecting the repository</h2>
 <p>
 With these changes in place (<a href="https://github.com/manuelkiessling/play2-compiletime-cassandra-di/tree/cb7a9b48c470f277e86b21b80a7f7ca540335981">commit cb7a9b4 in the repo</a>, <a href="https://github.com/manuelkiessling/play2-compiletime-cassandra-di/commit/cb7a9b48c470f277e86b21b80a7f7ca540335981?diff=split">diff</a>), we can approach the injection. How can we control the way the <code class="inline">Application</code> controller is created, i.e. how can we control compile time dependency injection? In Play 2.4, this happens by providing a class that extends the <code class="inline">play.api.ApplicationLoader</code> trait.
 </p>
@@ -337,6 +338,7 @@ As you can see, this approach also allows to adapt to the application environmen
 At this point (<a href="https://github.com/manuelkiessling/play2-compiletime-cassandra-di/tree/4e707cb784e7adbc7c8204f033404690986c9448">commit 4e707cb</a>, <a href="https://github.com/manuelkiessling/play2-compiletime-cassandra-di/commit/4e707cb784e7adbc7c8204f033404690986c9448?diff=split">diff</a>, dependency injection is in place and the application is runnable again.
 </p>
 
+<h2>Fixing the tests</h2>
 <p>
 What still doesn&#8217;t run, however, are the tests. Also, it&#8217;s a bit sad that we did all those things that give our controller a repository, and then it doesn&#8217;t even use it. Let&#8217;s fix both issues.
 </p>
@@ -388,6 +390,7 @@ class IntegrationSpec extends PlaySpec with OneBrowserPerSuite with OneServerPer
 We need to override the implicit <code class="inline">app</code> value, where we ask our new AppLoader to create an application for the <em>Test</em> environment. Furthermore, we extend our specification and now expect our app to not only greet us, but to also tell us about the name of the product with ID 1, which we insert in the new <em>before</em> step of our specification.
 </p>
 
+<h2>Injecting a mock repository</h2>
 <p>
 We could do the same with the ApplicationSpec, but let&#8217;s go one step further and mock the ProductRepository, which gives us a specification that in contrast to the integration spec doesn&#8217;t need an actual Cassandra database to work, and only verifies the behaviour of the Application controller itself, not its dependencies. To do so, we change file <code class="inline">test/ApplicationSpec.scala</code> as follows:
 </p>
@@ -477,6 +480,11 @@ class Application(productsRepository: Repository[ProductModel, Int]) extends Con
 
 <p>
 And that's it. At <a href="https://github.com/manuelkiessling/play2-compiletime-cassandra-di/tree/796b6c64ea88a160481069261e1474ec36103072">commit 796b6c6</a>, (see <a href="https://github.com/manuelkiessling/play2-compiletime-cassandra-di/commit/796b6c64ea88a160481069261e1474ec36103072?diff=split">the diff</a>), we have a working Play 2.4 app with a compile time injected Cassandra repository.
+</p>
+
+<h2>Acknowledgements</h2>
+<p>
+This post owes a lot to <a href="http://mariussoutier.com/blog/2015/12/06/playframework-2-4-dependency-injection-di/">the writings of Marius Soutier</a> and <a href="https://github.com/mariussoutier/PlayBasics/tree/master/DependencyInjection/CompileTime">his example code repositories</a>.
 </p></div>
             <div id="twitterfollow">
                 <span class="note">If you would like to be informed on updates to this post, just <a href="https://twitter.com/manuelkiessling">follow @manuelkiessling</a></span>
